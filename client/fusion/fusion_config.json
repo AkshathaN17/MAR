@@ -1,0 +1,52 @@
+{
+  "emotions": [
+    "interested",
+    "bored",
+    "confused",
+    "frustrated",
+    "neutral"
+  ],
+
+  "cue_weights": {
+    "gaze": 0.6,
+    "posture": 0.4
+  },
+
+  "confidence_threshold": 0.25,
+
+  "cue_to_emotion": {
+    "gaze": {
+      "looking_at_screen": {
+        "interested": 0.7,
+        "confused": 0.2,
+        "neutral": 0.1
+      },
+      "looking_away": {
+        "bored": 0.6,
+        "frustrated": 0.3,
+        "neutral": 0.1
+      }
+    },
+
+    "posture": {
+      "sitting_upright": {
+        "interested": 0.7,
+        "neutral": 0.3
+      },
+      "writing": {
+        "interested": 0.8,
+        "neutral": 0.2
+      },
+      "hands_on_face": {
+        "confused": 0.6,
+        "frustrated": 0.2,
+        "neutral": 0.2
+      },
+      "slouching": {
+        "bored": 0.6,
+        "frustrated": 0.2,
+        "neutral": 0.2
+      }
+    }
+  }
+}
