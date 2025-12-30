@@ -3,3 +3,5 @@ __pycache__/
 *.pyc
 mp38/
 not_required_local/
+dataset/
+data/

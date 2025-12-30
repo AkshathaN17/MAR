@@ -1,0 +1,67 @@
+{
+  "timestamp_sec": 19,
+  "cues": {
+    "gaze": {
+      "cue": "gaze",
+      "timestamp_sec": 19,
+      "prediction": "unknown",
+      "confidence": 0.0,
+      "quality": "face_not_detected",
+      "emotion_distribution": {
+        "interested": 0.0,
+        "bored": 0.0,
+        "confused": 0.0,
+        "frustrated": 0.0,
+        "neutral": 1.0
+      },
+      "mapping_quality": "fallback_neutral"
+    },
+    "posture": {
+      "cue": "posture",
+      "timestamp_sec": 19,
+      "prediction": "writing",
+      "confidence": 0.8449124693870544,
+      "probabilities": {
+        "sitting_upright": 0.09039928019046783,
+        "writing": 0.8513830900192261,
+        "hands_on_face": 0.016648760065436363,
+        "slouching": 0.041568756103515625
+      },
+      "quality": "good",
+      "window_size": 2,
+      "temporal_smoothed": true,
+      "emotion_distribution": {
+        "interested": 0.8,
+        "neutral": 0.2
+      },
+      "mapping_quality": "mapped"
+    }
+  },
+  "fusion": {
+    "timestamp_sec": 19,
+    "final_emotion": "interested",
+    "confidence": 0.2704,
+    "emotion_scores": {
+      "interested": 0.27037199020385744,
+      "neutral": 0.06759299755096436
+    },
+    "contributing_cues": [
+      "posture"
+    ],
+    "fusion_type": "weighted_majority_voting"
+  },
+  "streaming_payload": {
+    "type": "window_update",
+    "class_id": "CS101",
+    "student_id": "student_001",
+    "session_id": "session_2025_01_01",
+    "timestamp_sec": 19,
+    "emotion": "interested",
+    "confidence": 0.2704,
+    "emotion_scores": {
+      "interested": 0.27037199020385744,
+      "neutral": 0.06759299755096436
+    },
+    "fusion_type": "weighted_majority_voting"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "window_update",
+  "class_id": "CS101",
+  "student_id": "student_001",
+  "session_id": "session_2025_01_01",
+  "timestamp_sec": 0,
+  "emotion": "bored",
+  "confidence": 0.3563,
+  "emotion_scores": {
+    "bored": 0.35633612842224865,
+    "frustrated": 0.17816806421112433,
+    "neutral": 0.1264647026374321,
+    "interested": 0.2683013916015625
+  },
+  "fusion_type": "weighted_majority_voting",
+  "cues": null
+}

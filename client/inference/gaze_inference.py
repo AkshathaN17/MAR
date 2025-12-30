@@ -1,9 +1,10 @@
 import cv2
 import torch
+import torch.nn as nn
 import joblib
 import numpy as np
-from pathlib import Path
 from typing import Dict, Tuple
+from torchvision import models
 
 
 class GazeInference:
@@ -21,9 +22,20 @@ class GazeInference:
     ):
         self.device = device
 
+        # --------------------------------------------------
         # Load CNN feature extractor
-        self.cnn = torch.load(cnn_model_path, map_location=device)
-        self.cnn.eval()
+        # --------------------------------------------------
+        # The training script saved ONLY the state_dict of a ResNet18
+        # feature extractor (fc replaced with Identity). Here we
+        # reconstruct the same architecture and load the weights.
+        state_dict = torch.load(cnn_model_path, map_location=device)
+
+        cnn = models.resnet18(weights="IMAGENET1K_V1")
+        cnn.fc = nn.Identity()  # match training: feature extractor
+        cnn.load_state_dict(state_dict)
+        cnn.to(device)
+        cnn.eval()
+        self.cnn = cnn
 
         # Load SVM
         self.svm = joblib.load(svm_model_path)
@@ -59,11 +71,23 @@ class GazeInference:
             return None, False
 
         # Combine eye regions
+        # Resize each eye to a consistent size before concatenation
         eye_images = []
+        target_height = 50  # Target height for each eye
         for (ex, ey, ew, eh) in eyes[:2]:
-            eye_images.append(face_roi[ey:ey + eh, ex:ex + ew])
+            eye_crop = face_roi[ey:ey + eh, ex:ex + ew]
+            # Resize to consistent height while maintaining aspect ratio
+            eye_crop_resized = cv2.resize(eye_crop, (ew, target_height))
+            eye_images.append(eye_crop_resized)
 
-        eye_region = np.concatenate(eye_images, axis=1)
+        # If we have two eyes, concatenate them horizontally
+        if len(eye_images) == 2:
+            eye_region = np.concatenate(eye_images, axis=1)
+        else:
+            # If only one eye detected, use it directly
+            eye_region = eye_images[0]
+
+        # Final resize to model input size
         eye_region = cv2.resize(eye_region, (224, 224))
 
         return eye_region, True

@@ -1,9 +1,11 @@
 import cv2
 import torch
+import torch.nn as nn
 import json
 import numpy as np
 from typing import Dict
 from pathlib import Path
+from torchvision import models
 
 
 class PostureInference:
@@ -19,13 +21,27 @@ class PostureInference:
     ):
         self.device = device
 
-        # Load posture CNN
-        self.model = torch.load(model_path, map_location=device)
-        self.model.eval()
-
-        # Load class map
+        # Load class map first to determine number of classes
         with open(class_map_path, "r") as f:
             self.class_map = json.load(f)
+
+        num_classes = len(self.class_map)
+
+        # Reconstruct model architecture (matches training: ResNet18 with custom fc)
+        self.model = models.resnet18(weights="IMAGENET1K_V1")
+        # Freeze backbone (as done in training)
+        for param in self.model.parameters():
+            param.requires_grad = False
+        # Replace fc layer with custom classifier
+        self.model.fc = nn.Linear(self.model.fc.in_features, num_classes)
+        
+        # Load state dict
+        state_dict = torch.load(model_path, map_location=device)
+        self.model.load_state_dict(state_dict)
+        
+        # Move to device and set to eval mode
+        self.model = self.model.to(device)
+        self.model.eval()
 
         # Person detector (HOG-based, lightweight)
         self.person_detector = cv2.HOGDescriptor()
