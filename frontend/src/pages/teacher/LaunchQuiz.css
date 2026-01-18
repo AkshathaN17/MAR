@@ -1,0 +1,33 @@
+.launch-container {
+  max-width: 700px;
+  margin: auto;
+  padding: 30px;
+}
+
+.launch-container h1 {
+  margin-bottom: 20px;
+}
+
+.launch-container label {
+  font-weight: 600;
+  margin-top: 15px;
+  display: block;
+}
+
+.launch-container textarea,
+.launch-container select,
+.launch-container input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
