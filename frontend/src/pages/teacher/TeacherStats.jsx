@@ -36,6 +36,14 @@ export default function TeacherStats() {
         >
           Back
         </button>
+        <button
+        className="btn-primary"
+  onClick={() => navigate("/teacher/gamification")}
+>
+  Enable Gamification
+</button>
+     
+
       </div>
     </div>
   );

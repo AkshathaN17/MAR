@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { students, teachers } from "../../data/users";
 import Navbar from "../../components/Navbar";
 
-
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -15,6 +14,9 @@ export default function Login() {
   const handleLogin = () => {
     setError("");
 
+    // 🚨 IMPORTANT: Clear old session before login
+    localStorage.clear();
+
     if (role === "student") {
       const student = students.find(
         (u) => u.username === username && u.password === password
@@ -25,8 +27,14 @@ export default function Login() {
         return;
       }
 
-      localStorage.setItem("user", JSON.stringify({ ...student, role }));
-      navigate("/student/dashboard");
+      const userData = {
+        ...student,
+        role: "student", // 👈 EXPLICIT
+      };
+
+      localStorage.setItem("user", JSON.stringify(userData));
+      window.location.href = "/student/dashboard";
+      return;
     }
 
     if (role === "teacher") {
@@ -35,56 +43,70 @@ export default function Login() {
       );
 
       if (!teacher) {
-        setError("Invalid teacher credentials");
+        setError("Invalid faculty credentials");
         return;
       }
 
-      localStorage.setItem("user", JSON.stringify({ ...teacher, role }));
-      navigate("/teacher/dashboard");
+      const userData = {
+        ...teacher,
+        role: "teacher", // 👈 EXPLICIT
+      };
+
+      localStorage.setItem("user", JSON.stringify(userData));
+      window.location.href = "/teacher/dashboard";
+      return;
     }
   };
 
   return (
-    <>
-      <Navbar title="R. V. College of Engineering" />
-  
-      <div className="hero">
-        <div className="container">
-        <h1>College Learning Management System</h1>
-        <p>
-            Academic portal for students and faculty of R. V. College of Engineering
-        </p>
-        </div>
-    </div>
+  <>
+    <Navbar title="R. V. College of Engineering" />
 
-  
-      <div className="content">
-        <div className="panel" style={{ maxWidth: 420 }}>
-          <h2>Portal Login</h2>
-  
-          <label>Role</label>
-          <select value={role} onChange={(e) => setRole(e.target.value)}>
-            <option value="student">Student</option>
-            <option value="teacher">Faculty</option>
-          </select>
-  
-          <label>Username</label>
-          <input value={username} onChange={(e) => setUsername(e.target.value)} />
-  
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-  
-          <button className="btn-primary" onClick={handleLogin}>
-            Sign In
-          </button>
-  
-          {error && <p className="error">{error}</p>}
+    <div className="page center-page">
+      <div className="card auth-card">
+
+        <div className="hero">
+          <div className="container">
+            <h1>College Learning Management System</h1>
+            <p>
+              Academic portal for students and faculty of R. V. College of Engineering
+            </p>
+          </div>
         </div>
+
+        <div className="content">
+          <div className="panel" style={{ maxWidth: 420 }}>
+            <h2>Portal Login</h2>
+
+            <label>Role</label>
+            <select value={role} onChange={(e) => setRole(e.target.value)}>
+              <option value="student">Student</option>
+              <option value="teacher">Faculty</option>
+            </select>
+
+            <label>Username</label>
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+
+            <label>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <button className="btn-primary" onClick={handleLogin}>
+              Sign In
+            </button>
+
+            {error && <p className="error">{error}</p>}
+          </div>
+        </div>
+
       </div>
-    </>
-  ); 
+    </div>
+  </>
+);
 }

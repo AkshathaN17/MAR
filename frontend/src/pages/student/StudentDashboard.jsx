@@ -47,6 +47,13 @@ export default function StudentDashboard() {
                 >
                   Upload Video
                 </button>
+                <button
+  className="btn-secondary"
+  onClick={() => navigate("/student/activity")}
+>
+  Join Live Activity
+</button>
+
               </div>
             ))}
           </div>

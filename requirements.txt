@@ -17,3 +17,6 @@ uvicorn[standard]>=0.24.0
 # Utilities
 joblib>=1.3.0
 
+#npm install react-wordcloud d3-cloud --legacy-peer-deps
+#npm install @google/generative-ai
+#npm install express cors

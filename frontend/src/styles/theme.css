@@ -1,0 +1,172 @@
+/* ====== COLOR PALETTE (PASTEL + HIGH CONTRAST) ====== */
+:root {
+  /* Backgrounds */
+  --bg-main: linear-gradient(135deg, #fdfbfb, #ebedee);
+  --bg-card: linear-gradient(135deg, #ffffff, #f6f7fb);
+
+  /* Primary (Lavender → Pink) */
+  --primary: linear-gradient(135deg, #a18cd1, #c2e4fb);
+  --primary-solid: #a18cd1;
+
+  /* Secondary (Mint → Sky) */
+  --secondary: linear-gradient(135deg, #84fab0, #8fd3f4);
+  --secondary-solid: #6ee7b7;
+
+  /* Accent (Peach) */
+  --accent: linear-gradient(135deg, #fddb92, #d1fdff);
+
+  /* Text */
+  --text-dark: #1f2937;
+  --text-muted: #6b7280;
+
+  /* UI */
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 18px 45px rgba(0, 0, 0, 0.12);
+}
+
+/* ====== PAGE WRAPPER ====== */
+.page,
+body {
+  background: var(--bg-main);
+  font-family: "Inter", system-ui, sans-serif;
+  color: var(--text-dark);
+}
+
+/* ====== CARD ====== */
+.card,
+.panel {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-soft);
+  margin-bottom: 24px;
+}
+
+/* ====== HEADINGS ====== */
+h1 {
+  font-size: 2.6rem;
+  font-weight: 700;
+  background: var(--primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 14px;
+}
+
+h3 {
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+  color: var(--text-dark);
+}
+
+/* ====== TEXT ====== */
+.subtitle,
+.info {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+/* ====== BUTTONS (VERY IMPORTANT FIX) ====== */
+button {
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* PRIMARY BUTTON */
+.btn-primary {
+  background: var(--primary);
+  color: #ffffff; /* 🔑 NEVER WHITE ON WHITE */
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+}
+
+.btn-primary:hover {
+  opacity: 0.95;
+}
+
+/* SECONDARY BUTTON */
+.btn-secondary {
+  background: var(--secondary);
+  color: #065f46;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+}
+
+/* DISABLED */
+button:disabled,
+.btn-disabled {
+  background: #e5e7eb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+/* ====== FORMS ====== */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #d1d5db;
+  margin-bottom: 16px;
+  font-size: 1rem;
+}
+
+/* ====== GRID ====== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 28px;
+}
+
+/* ====== LISTS ====== */
+ul {
+  padding-left: 20px;
+}
+
+li {
+  margin-bottom: 6px;
+}
+
+/* ====== HR ====== */
+hr {
+  margin: 28px 0;
+  border: none;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #d1d5db, transparent);
+}
+
+.center-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ⬆️ Bigger, cleaner login card */
+.auth-card {
+  width: 100%;
+  max-width: 1000px;        /* ⬅️ increase size */
+  padding: 1.6rem;        /* ⬅️ more breathing space */
+  text-align: center;
+
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+
+.auth-card .content {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
