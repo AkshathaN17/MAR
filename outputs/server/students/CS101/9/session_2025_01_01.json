@@ -1,0 +1,13 @@
+{
+  "student_id": "9",
+  "session_id": "session_2025_01_01",
+  "class_id": "CS101",
+  "total_windows": 4,
+  "duration_sec": 59,
+  "emotion_distribution": {
+    "bored": 0.25,
+    "neutral": 0.75
+  },
+  "dominant_emotion": "neutral",
+  "average_confidence": 0.089
+}
