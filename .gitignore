@@ -9,5 +9,4 @@ data/
 .env
 backend/.env
 frontend/.env
-outputs/
 node_modules

@@ -1,4 +1,4 @@
-import ReactWordcloud from "react-wordcloud";
+											 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
@@ -10,8 +10,12 @@ export default function ActivityStats() {
   const { activity, nextQuestion, endActivity } = useGamification();
   const user = JSON.parse(localStorage.getItem("user"));
 
-  const [viewQuestionIndex, setViewQuestionIndex] = useState(0);
-  const [renderCloud, setRenderCloud] = useState(false); // 🔑 KEY FIX
+  //const [viewQuestionIndex, setViewQuestionIndex] = useState(0);
+	const viewQuestionIndex =
+  activity?.type === "quiz"
+    ? activity.currentQuestionIndex
+    : 0;
+																
 
   /* 🔐 Auth guard */
   useEffect(() => {
@@ -20,20 +24,31 @@ export default function ActivityStats() {
     }
   }, [user, navigate]);
 
-  /* 🔄 Sync stats with live quiz question */
+  /* 🔄 Sync stats with live quiz question 
   useEffect(() => {
     if (activity?.type === "quiz") {
       setViewQuestionIndex(activity.currentQuestionIndex);
     }
   }, [activity?.currentQuestionIndex, activity?.type]);
+*/
+  /* 🎲 Stable random rotations for word cloud */
+  const [rotations] = useState(() => {
+  if (!activity || activity.type !== "wordcloud") return {};
 
-  /* 🧯 Delay WordCloud rendering to avoid React 19 crash */
-  useEffect(() => {
-    setRenderCloud(false);
-    const t = setTimeout(() => setRenderCloud(true), 100);
-    return () => clearTimeout(t);
-  }, [activity]);
+  const map = {};
+  Object.values(activity.responses || {}).forEach((word) => {
+    if (!map[word]) {
+      map[word] = Math.random() * 10 - 5;
+    }
+  });
 
+  return map;
+});
+
+
+  //
+ 
+//
   if (!activity) {
     return (
       <>
@@ -46,88 +61,96 @@ export default function ActivityStats() {
   }
 
   /* ===================== WORD CLOUD ===================== */
-  /* ===================== WORD CLOUD ===================== */
-if (activity.type === "wordcloud") {
-  const freq = {};
-  Object.values(activity.responses || {}).forEach((word) => {
-    freq[word] = (freq[word] || 0) + 1;
-  });
+															  
 
-  const maxFreq = Math.max(...Object.values(freq), 1);
+						
+															
 
-  return (
-    <>
-      <Navbar title="Word Cloud Results" />
+  if (activity.type === "wordcloud") {
+    const freq = {};
+    Object.values(activity.responses || {}).forEach((word) => {
+      freq[word] = (freq[word] || 0) + 1;
+    });
 
-      <div className="panel">
-        <h2>{activity.prompt}</h2>
+													  
 
-        {Object.keys(freq).length === 0 && (
-          <p>No responses yet</p>
-        )}
+		  
+	  
+										   
 
-        {Object.keys(freq).length > 0 && (
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              gap: "16px",
-              padding: "20px",
-              border: "1px dashed #ccc",
-              borderRadius: "8px",
-              minHeight: "200px"
+    const maxFreq = Math.max(...Object.values(freq), 1);
+								  
+
+    return (
+      <>
+        <Navbar title="Word Cloud Results" />
+
+        <div className="panel">
+          <h2>{activity.prompt}</h2>	 		   
+															
+
+          {Object.keys(freq).length === 0 && <p>No responses yet</p>}
+
+          {Object.keys(freq).length > 0 && (
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                gap: "16px",
+                padding: "20px",
+                border: "1px dashed #ccc",
+                borderRadius: "8px",
+                minHeight: "200px",
+              }}
+            >
+              {Object.entries(freq).map(([word, count]) => {
+                const size = 16 + (count / maxFreq) * 44;
+
+                return (
+                  <span
+                    key={word}
+                    style={{
+                      fontSize: `${size}px`,
+                      fontWeight: 600,
+                      color: "#333",
+                      transform: `rotate(${rotations[word] || 0}deg)`,
+                      userSelect: "none",
+                    }}
+                  >
+                    {word}
+                  </span>
+                );
+              })}
+            </div>
+          )}
+			 
+
+          <hr />			 
+          <h3>Student Responses</h3>
+          <ul>
+            {Object.entries(activity.responses || {}).map(
+              ([student, word]) => (
+                <li key={student}>
+                  <strong>{student}</strong> → {word}
+                </li>
+              )
+            )}
+          </ul>
+
+          <button
+            className="btn-primary"
+            onClick={() => {
+              endActivity();
+              navigate("/teacher/dashboard");
             }}
           >
-            {Object.entries(freq).map(([word, count]) => {
-              const size =
-                16 + (count / maxFreq) * 44; // font scaling
-
-              return (
-                <span
-                  key={word}
-                  style={{
-                    fontSize: `${size}px`,
-                    fontWeight: "600",
-                    color: "#333",
-                    transform: `rotate(${Math.random() * 10 - 5}deg)`,
-                    userSelect: "none"
-                  }}
-                >
-                  {word}
-                </span>
-              );
-            })}
-          </div>
-        )}
-
-        <hr />
-
-        <h3>Student Responses</h3>
-        <ul>
-          {Object.entries(activity.responses || {}).map(
-            ([student, word]) => (
-              <li key={student}>
-                <strong>{student}</strong> → {word}
-              </li>
-            )
-          )}
-        </ul>
-
-        <button
-          className="btn-primary"
-          onClick={() => {
-            endActivity();
-            navigate("/teacher/dashboard");
-          }}
-        >
-          End Word Cloud
-        </button>
-      </div>
-    </>
-  );
-}
-
+            End Word Cloud
+          </button>
+        </div>
+      </>
+    );
+  }
 
   /* ===================== QUIZ ===================== */
   if (activity.type === "quiz") {
@@ -139,17 +162,17 @@ if (activity.type === "wordcloud") {
     const question = activity.questions[viewQuestionIndex];
 
     const attemptedStudents = Object.entries(responses).filter(
-      ([_, data]) => data.answers?.[viewQuestionIndex] !== undefined
+      ([, data]) => data.answers?.[viewQuestionIndex] !== undefined
     );
 
     const correctCount = attemptedStudents.filter(
-      ([_, data]) =>
+      ([, data]) =>
         data.answers[viewQuestionIndex] === question.correctAnswer
     ).length;
 
     const optionStats = question.options.map((_, idx) =>
       attemptedStudents.filter(
-        ([_, data]) => data.answers[viewQuestionIndex] === idx
+        ([, data]) => data.answers[viewQuestionIndex] === idx
       ).length
     );
 
@@ -159,15 +182,16 @@ if (activity.type === "wordcloud") {
 
         <div className="panel">
           <h2>
-            Question {viewQuestionIndex + 1} of {activity.questions.length}
+            Question {viewQuestionIndex + 1} of{" "}
+            {activity.questions.length}
           </h2>
-          <p><strong>{question.question}</strong></p>
+
+          <p>
+            <strong>{question.question}</strong>
+          </p>
 
           <label>View Question:</label>
-          <select
-            value={viewQuestionIndex}
-            onChange={(e) => setViewQuestionIndex(Number(e.target.value))}
-          >
+          <select value={viewQuestionIndex} disabled>
             {activity.questions.map((_, idx) => (
               <option key={idx} value={idx}>
                 Question {idx + 1}
@@ -175,53 +199,67 @@ if (activity.type === "wordcloud") {
             ))}
           </select>
 
+
           <hr />
 
-          <p><strong>Section:</strong> {activity.section}</p>
-          <p><strong>Total Students:</strong> {sectionStudents.length}</p>
-          <p><strong>Attempted:</strong> {attemptedStudents.length}</p>
-          <p><strong>Correct Answers:</strong> {correctCount}</p>
+          <p>
+            <strong>Section:</strong> {activity.section}
+          </p>
+          <p>
+            <strong>Total Students:</strong>{" "}
+            {sectionStudents.length}
+          </p>
+          <p>
+            <strong>Attempted:</strong>{" "}
+            {attemptedStudents.length}
+          </p>
+          <p>
+            <strong>Correct Answers:</strong> {correctCount}
+          </p>
 
           <h3>Option-wise Distribution</h3>
-<ul>
-  {question.options.map((opt, idx) => (
-    <li key={idx}>
-      {opt} → {optionStats[idx]} students
-    </li>
-  ))}
-</ul>
+          <ul>
+            {question.options.map((opt, idx) => (
+              <li key={idx}>
+                {opt} → {optionStats[idx]} students
+              </li>
+            ))}
+          </ul>
 
-<hr />
+	  
 
-{/* 🏆 LEADERBOARD */}
-<h3>Leaderboard (XP)</h3>
-<table style={{ width: "100%", marginBottom: "20px" }}>
-  <thead>
-    <tr>
-      <th align="left">Student</th>
-      <th align="left">XP</th>
-    </tr>
-  </thead>
-  <tbody>
-    {Object.entries(responses)
-      .sort((a, b) => (b[1].xp || 0) - (a[1].xp || 0))
-      .map(([name, data]) => (
-        <tr key={name}>
-          <td>{name}</td>
-          <td>{data.xp || 0}</td>
-        </tr>
-      ))}
-  </tbody>
-</table>
+          <hr />										 
+			 
+		 	    <h3>Leaderboard (XP)</h3>
+          <table style={{ width: "100%", marginBottom: "20px" }}>
+            <thead>
+              <tr>
+                <th align="left">Student</th>
+                <th align="left">XP</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(responses)
+                .sort(
+                  (a, b) => (b[1].xp || 0) - (a[1].xp || 0)
+                )
+                .map(([name, data]) => (
+                  <tr key={name}>
+                    <td>{name}</td>
+                    <td>{data.xp || 0}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
 
-<hr />
+          <hr />
 
-<div style={{ display: "flex", gap: "12px" }}>
-
+          <div style={{ display: "flex", gap: "12px" }}>
             {activity.currentQuestionIndex <
             activity.questions.length - 1 ? (
               <button className="btn-primary" onClick={nextQuestion}>
-                Next Question (Q{activity.currentQuestionIndex + 2})
+                Next Question (Q
+                {activity.currentQuestionIndex + 2})
               </button>
             ) : (
               <button className="btn-primary" disabled>
