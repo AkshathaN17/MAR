@@ -1,5 +1,9 @@
+import sys
+import os
+sys.path.append(os.getcwd())
 import json
 import os
+import argparse
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Dict, Any, Optional
@@ -15,16 +19,25 @@ from client.network.http_client import AffectAnalysisClient
 
 
 # --------------------------------------------------
-# Config
+# 🔹 NEW: Argument Parsing (ADDED, nothing removed)
 # --------------------------------------------------
-VIDEO_PATH = "data/sample_video.mp4"
+parser = argparse.ArgumentParser()
+parser.add_argument("--video_path", required=True, help="Path to uploaded video")
+parser.add_argument("--student_id", required=True, help="Student ID")
+args = parser.parse_args()
+
+
+# --------------------------------------------------
+# Config  (ORIGINAL CONTENT PRESERVED)
+# --------------------------------------------------
+VIDEO_PATH = args.video_path              # 🔹 CHANGED (was hardcoded)
 FUSION_CONFIG_PATH = "client/fusion/fusion_config.json"
 
 # Frame sampling every 20 seconds as required
 FRAME_INTERVAL_SEC = 20
 OUTPUT_DIR = "outputs/client_jsons"
 
-STUDENT_ID = "student_001"
+STUDENT_ID = args.student_id              # 🔹 CHANGED (was hardcoded)
 CLASS_ID = "CS101"
 SESSION_ID = "session_2025_01_01"
 
@@ -57,7 +70,7 @@ def _init_models() -> Dict[str, Any]:
 
 
 # --------------------------------------------------
-# Pipeline Runner
+# Pipeline Runner  (ORIGINAL CONTENT PRESERVED)
 # --------------------------------------------------
 def run_pipeline(
     video_path: str = VIDEO_PATH,
@@ -78,6 +91,7 @@ def run_pipeline(
         server_url (Optional[str]): Server URL (defaults to SERVER_URL env var or config)
         enable_network (bool): Whether to send data to server
     """
+
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # -------- Init components --------
@@ -107,10 +121,13 @@ def run_pipeline(
     if enable_network:
         server_url = server_url or SERVER_URL
         http_client = AffectAnalysisClient(base_url=server_url)
-        
+
         # Check server health
         if not http_client.health_check():
-            print(f"Warning: Server at {server_url} is not reachable. Continuing without network...")
+            print(
+                f"Warning: Server at {server_url} is not reachable. "
+                "Continuing without network..."
+            )
             http_client = None
         else:
             print(f"Connected to server: {server_url}")
@@ -119,8 +136,11 @@ def run_pipeline(
 
     # -------- Process frames --------
     for frame, timestamp_sec in frame_sampler:
+
         # ---------------- Inference (parallel) ----------------
-        gaze_future = executor.submit(gaze_model.infer, frame, timestamp_sec)
+        gaze_future = executor.submit(
+            gaze_model.infer, frame, timestamp_sec
+        )
         posture_future = executor.submit(
             posture_model.infer, frame, timestamp_sec
         )
@@ -149,7 +169,7 @@ def run_pipeline(
         packager.add_fusion_result(fusion_output)
         window_payload = packager.build_window_payload(fusion_output)
 
-        # Save rich intermediate JSON (cue-level + fusion-level)
+        # Save rich intermediate JSON (cue-level + fusion-level)																
         window_record = {
             "timestamp_sec": timestamp_sec,
             "cues": {
@@ -180,16 +200,27 @@ def run_pipeline(
     with open(final_path, "w") as f_final:
         json.dump(final_payload, f_final, indent=2)
 
-    # ---------------- Send session summary to server (if enabled) ----------------
+    # ---------------- Send session summary to server (if enabled) ----------------																				   
     if http_client:
         http_client.send_session(final_payload, validate=True)
 
-    print("\nSession complete.")
-    print("Final dominant emotion:", final_payload.get("dominant_emotion"))
+    # ---------------- SEND FINAL RESULT TO NODE ----------------
+    final_result_for_node = {
+        "student_id": STUDENT_ID,
+        "dominant_emotion": final_payload.get("dominant_emotion")
+    }
 
+    print("###FINAL_RESULT_START###", flush=True)
+    print(json.dumps(final_result_for_node), flush=True)
+    print("###FINAL_RESULT_END###", flush=True)
+
+    #print("\nSession complete.", flush=True)
+    #print("Final Payload :", final_payload, flush=True)
+    #print("Final dominant emotion:", final_payload.get("dominant_emotion"), flush=True)
+    #sys.stdout.flush()
 
 # --------------------------------------------------
-# Entry point
+# Entry point (UNCHANGED LOGIC)
 # --------------------------------------------------
 if __name__ == "__main__":
     run_pipeline(VIDEO_PATH)

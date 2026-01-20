@@ -5,7 +5,7 @@
       "cue": "gaze",
       "timestamp_sec": 0,
       "prediction": "looking_away",
-      "confidence": 0.9930798184075683,
+      "confidence": 0.9913198126507307,
       "quality": "good",
       "window_size": 1,
       "temporal_smoothed": true,
@@ -19,53 +19,46 @@
     "posture": {
       "cue": "posture",
       "timestamp_sec": 0,
-      "prediction": "writing",
-      "confidence": 0.8384418487548828,
-      "probabilities": {
-        "sitting_upright": 0.10156598687171936,
-        "writing": 0.8384418487548828,
-        "hands_on_face": 0.02557639591395855,
-        "slouching": 0.03441577032208443
-      },
-      "quality": "good",
-      "window_size": 1,
-      "temporal_smoothed": true,
+      "prediction": "unknown",
+      "confidence": 0.0,
+      "probabilities": {},
+      "quality": "person_not_detected",
       "emotion_distribution": {
-        "interested": 0.8,
-        "neutral": 0.2
+        "interested": 0.0,
+        "bored": 0.0,
+        "confused": 0.0,
+        "frustrated": 0.0,
+        "neutral": 1.0
       },
-      "mapping_quality": "mapped"
+      "mapping_quality": "fallback_neutral"
     }
   },
   "fusion": {
     "timestamp_sec": 0,
     "final_emotion": "bored",
-    "confidence": 0.3575,
+    "confidence": 0.3569,
     "emotion_scores": {
-      "bored": 0.35750873462672456,
-      "frustrated": 0.17875436731336228,
-      "neutral": 0.12666013700484474,
-      "interested": 0.2683013916015625
+      "bored": 0.356875132554263,
+      "frustrated": 0.1784375662771315,
+      "neutral": 0.05947918875904384
     },
     "contributing_cues": [
-      "gaze",
-      "posture"
+      "gaze"
     ],
     "fusion_type": "weighted_majority_voting"
   },
   "streaming_payload": {
     "type": "window_update",
     "class_id": "CS101",
-    "student_id": "student_001",
+    "student_id": "6",
     "session_id": "session_2025_01_01",
     "timestamp_sec": 0,
     "emotion": "bored",
-    "confidence": 0.3575,
+    "confidence": 0.3569,
     "emotion_scores": {
-      "bored": 0.35750873462672456,
-      "frustrated": 0.17875436731336228,
-      "neutral": 0.12666013700484474,
-      "interested": 0.2683013916015625
+      "bored": 0.356875132554263,
+      "frustrated": 0.1784375662771315,
+      "neutral": 0.05947918875904384
     },
     "fusion_type": "weighted_majority_voting"
   }

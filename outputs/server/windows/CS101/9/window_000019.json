@@ -1,9 +1,9 @@
 {
   "type": "window_update",
   "class_id": "CS101",
-  "student_id": "student_001",
+  "student_id": "9",
   "session_id": "session_2025_01_01",
-  "timestamp_sec": 39,
+  "timestamp_sec": 19,
   "emotion": "neutral",
   "confidence": 0.0,
   "emotion_scores": {

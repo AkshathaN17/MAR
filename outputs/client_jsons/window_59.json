@@ -1,9 +1,9 @@
 {
-  "timestamp_sec": 39,
+  "timestamp_sec": 59,
   "cues": {
     "gaze": {
       "cue": "gaze",
-      "timestamp_sec": 39,
+      "timestamp_sec": 59,
       "prediction": "unknown",
       "confidence": 0.0,
       "quality": "face_not_detected",
@@ -18,7 +18,7 @@
     },
     "posture": {
       "cue": "posture",
-      "timestamp_sec": 39,
+      "timestamp_sec": 59,
       "prediction": "unknown",
       "confidence": 0.0,
       "probabilities": {},
@@ -34,7 +34,7 @@
     }
   },
   "fusion": {
-    "timestamp_sec": 39,
+    "timestamp_sec": 59,
     "final_emotion": "neutral",
     "confidence": 0.0,
     "emotion_scores": {
@@ -52,7 +52,7 @@
     "class_id": "CS101",
     "student_id": "6",
     "session_id": "session_2025_01_01",
-    "timestamp_sec": 39,
+    "timestamp_sec": 59,
     "emotion": "neutral",
     "confidence": 0.0,
     "emotion_scores": {
