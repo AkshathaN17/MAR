@@ -5,11 +5,11 @@
   "session_id": "session_2025_01_01",
   "timestamp_sec": 0,
   "emotion": "bored",
-  "confidence": 0.3563,
+  "confidence": 0.3575,
   "emotion_scores": {
-    "bored": 0.35633612842224865,
-    "frustrated": 0.17816806421112433,
-    "neutral": 0.1264647026374321,
+    "bored": 0.35750873462672456,
+    "frustrated": 0.17875436731336228,
+    "neutral": 0.12666013700484474,
     "interested": 0.2683013916015625
   },
   "fusion_type": "weighted_majority_voting",
