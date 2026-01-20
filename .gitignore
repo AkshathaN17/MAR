@@ -5,3 +5,9 @@ mp38/
 not_required_local/
 dataset/
 data/
+# Environment variables
+.env
+backend/.env
+frontend/.env
+outputs/
+node_modules
