@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-<<<<<<< HEAD
 import {
   PieChart,
   Pie,
@@ -9,9 +8,6 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-=======
-import { PieChart, Pie, Cell, Legend, ResponsiveContainer, Tooltip } from "recharts";
->>>>>>> 53f8d3f42a3641f7ae4720c6711232e297684686
 
 export default function TeacherStats() {
   const navigate = useNavigate();
@@ -89,7 +85,6 @@ export default function TeacherStats() {
         ) : (
           <>
             <p className="info">Total Records: {stats.total}</p>
-<<<<<<< HEAD
 
             <h3>Emotion Distribution</h3>
 
@@ -110,35 +105,6 @@ export default function TeacherStats() {
                     ))}
                   </Pie>
                   <Tooltip formatter={(v) => `${v.toFixed(1)}%`} />
-=======
-            
-            {/* Emotion Distribution Pie Chart */}
-            <h3>Emotion Distribution</h3>
-            <div style={{ marginBottom: "24px" }}>
-              <ResponsiveContainer width="100%" height={400}>
-                <PieChart>
-                  <Pie
-                    data={[
-                      { name: "Interested", value: parseFloat(stats.interested) || 0 },
-                      { name: "Bored", value: parseFloat(stats.bored) || 0 },
-                      { name: "Confused", value: parseFloat(stats.confused) || 0 },
-                      { name: "Frustrated", value: parseFloat(stats.frustrated) || 0 },
-                      { name: "Neutral", value: parseFloat(stats.neutral) || 0 },
-                    ]}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={120}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    <Cell fill="#10b981" /> {/* Interested - Green */}
-                    <Cell fill="#f59e0b" /> {/* Bored - Amber/Orange */}
-                    <Cell fill="#fb923c" /> {/* Confused - Orange */}
-                    <Cell fill="#ef4444" /> {/* Frustrated - Red */}
-                    <Cell fill="#6b7280" /> {/* Neutral - Gray */}
-                  </Pie>
-                  <Tooltip formatter={(value) => `${value.toFixed(1)}%`} />
->>>>>>> 53f8d3f42a3641f7ae4720c6711232e297684686
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -147,10 +113,6 @@ export default function TeacherStats() {
             <hr />
 
             <h3>Detailed Statistics</h3>
-<<<<<<< HEAD
-=======
-            <p className="info">Neutral: {stats.neutral}%</p>
->>>>>>> 53f8d3f42a3641f7ae4720c6711232e297684686
             <p className="info">Interested: {stats.interested}%</p>
             <p className="info">Bored: {stats.bored}%</p>
             <p className="info">Confused: {stats.confused}%</p>
