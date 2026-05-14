@@ -8,8 +8,10 @@
   ],
 
   "cue_weights": {
-    "gaze": 0.6,
-    "posture": 0.4
+    "gaze": 0.3,
+    "posture": 0.3,
+    "facial": 0.2,
+    "speech": 0.2
   },
 
   "confidence_threshold": 0.25,
@@ -46,6 +48,48 @@
         "bored": 0.6,
         "frustrated": 0.2,
         "neutral": 0.2
+      }
+    },
+
+    "facial": {
+      "bored": {
+        "bored": 0.8,
+        "neutral": 0.2
+      },
+      "confused": {
+        "confused": 0.8,
+        "frustrated": 0.1,
+        "neutral": 0.1
+      },
+      "frustrated": {
+        "frustrated": 0.8,
+        "confused": 0.1,
+        "neutral": 0.1
+      },
+      "interested": {
+        "interested": 0.8,
+        "neutral": 0.2
+      },
+      "neutral": {
+        "neutral": 1.0
+      }
+    },
+
+    "speech": {
+      "neutral": {
+        "neutral": 1.0
+      },
+      "interested": {
+        "interested": 1.0
+      },
+      "bored": {
+        "bored": 1.0
+      },
+      "frustrated": {
+        "frustrated": 1.0
+      },
+      "confused": {
+        "confused": 1.0
       }
     }
   }

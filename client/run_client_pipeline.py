@@ -11,6 +11,8 @@ from typing import Dict, Any, Optional
 from client.preprocessing.frame_sampler import FrameSampler
 from client.inference.gaze_inference import GazeInference
 from client.inference.posture_inference import PostureInference
+from client.inference.facial_inference import FacialInference
+from client.inference.speech_inference import SpeechInference
 from client.temporal.temporal_smoothing import TemporalSmoother
 from client.fusion.cue_to_affect import CueToAffectMapper
 from client.fusion.fusion_engine import FusionEngine
@@ -48,7 +50,7 @@ ENABLE_NETWORK = os.getenv("ENABLE_NETWORK", "true").lower() == "true"
 
 def _init_models() -> Dict[str, Any]:
     """
-    Initialize gaze and posture models.
+    Initialize gaze, posture, facial, and speech models.
     Model paths assume the default layout in the repository.
     """
     gaze_model = GazeInference(
@@ -63,9 +65,22 @@ def _init_models() -> Dict[str, Any]:
         device="cpu",
     )
 
+    facial_model = FacialInference(
+        model_path="models/best_facial_model.pth",
+        class_map_path="models/facial_class_map.json",
+        device="cpu",
+    )
+
+    speech_model = SpeechInference(
+        model_path="models/speech_wav2vec/speech_wav2vec.pt",
+        device="cpu",
+    )
+
     return {
         "gaze": gaze_model,
         "posture": posture_model,
+        "facial": facial_model,
+        "speech": speech_model,
     }
 
 
@@ -100,9 +115,13 @@ def run_pipeline(
     models = _init_models()
     gaze_model: GazeInference = models["gaze"]
     posture_model: PostureInference = models["posture"]
+    facial_model: FacialInference = models["facial"]
+    speech_model: SpeechInference = models["speech"]
 
     gaze_smoother = TemporalSmoother(window_size=3)
     posture_smoother = TemporalSmoother(window_size=3)
+    facial_smoother = TemporalSmoother(window_size=3)
+    speech_smoother = TemporalSmoother(window_size=3)
 
     with open(FUSION_CONFIG_PATH, "r") as f:
         fusion_cfg = json.load(f)
@@ -132,7 +151,7 @@ def run_pipeline(
         else:
             print(f"Connected to server: {server_url}")
 
-    executor = ThreadPoolExecutor(max_workers=2)
+    executor = ThreadPoolExecutor(max_workers=4)
 
     # -------- Process frames --------
     for frame, timestamp_sec in frame_sampler:
@@ -144,23 +163,37 @@ def run_pipeline(
         posture_future = executor.submit(
             posture_model.infer, frame, timestamp_sec
         )
+        facial_future = executor.submit(
+            facial_model.infer, frame, timestamp_sec
+        )
+        speech_future = executor.submit(
+            speech_model.infer, frame, timestamp_sec, video_path
+        )
 
         gaze_raw = gaze_future.result()
         posture_raw = posture_future.result()
+        facial_raw = facial_future.result()
+        speech_raw = speech_future.result()
 
         # ---------------- Temporal smoothing ----------------
         gaze_smoothed = gaze_smoother.update(gaze_raw)
         posture_smoothed = posture_smoother.update(posture_raw)
+        facial_smoothed = facial_smoother.update(facial_raw)
+        speech_smoothed = speech_smoother.update(speech_raw)
 
         # ---------------- Cue → affect mapping ----------------
         gaze_affect = cue_mapper.map(gaze_smoothed)
         posture_affect = cue_mapper.map(posture_smoothed)
+        facial_affect = cue_mapper.map(facial_smoothed)
+        speech_affect = cue_mapper.map(speech_smoothed)
 
         # ---------------- Fusion ----------------
         fusion_output = fusion_engine.fuse(
             cues={
                 "gaze": gaze_affect,
                 "posture": posture_affect,
+                "facial": facial_affect,
+                "speech": speech_affect,
             },
             timestamp_sec=timestamp_sec,
         )
@@ -175,6 +208,8 @@ def run_pipeline(
             "cues": {
                 "gaze": gaze_affect,
                 "posture": posture_affect,
+                "facial": facial_affect,
+                "speech": speech_affect,
             },
             "fusion": fusion_output,
             "streaming_payload": window_payload,
