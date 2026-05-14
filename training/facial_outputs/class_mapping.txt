@@ -1,0 +1,17 @@
+Class Name -> Index
+==============================
+          bored -> 0
+       confused -> 1
+     frustrated -> 2
+     interested -> 3
+        neutral -> 4
+
+FER2013 -> Classroom Emotion Remap
+==============================
+     angry -> frustrated
+   disgust -> frustrated
+      fear -> confused
+     happy -> interested
+   neutral -> neutral
+       sad -> bored
+  surprise -> interested
