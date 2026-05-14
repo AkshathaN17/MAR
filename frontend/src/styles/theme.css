@@ -101,6 +101,25 @@ button {
   border-radius: var(--radius-md);
 }
 
+/* Stop live recording — high visibility */
+.btn-stop-recording {
+  background: #b91c1c;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+}
+
+.btn-stop-recording:hover:not(:disabled) {
+  background: #991b1b;
+}
+
+.btn-stop-recording:disabled {
+  background: #e5e7eb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
 /* DISABLED */
 button:disabled,
 .btn-disabled {

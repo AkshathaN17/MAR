@@ -1,0 +1,14 @@
+{
+  "student_id": "6",
+  "session_id": "session_live_1778749128501",
+  "class_id": "CS101",
+  "total_windows": 8,
+  "duration_sec": 140,
+  "emotion_distribution": {
+    "bored": 0.75,
+    "interested": 0.125,
+    "neutral": 0.125
+  },
+  "dominant_emotion": "bored",
+  "average_confidence": 0.301
+}

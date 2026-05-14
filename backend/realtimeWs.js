@@ -3,6 +3,7 @@
  */
 const path = require("path");
 const fs = require("fs");
+const express = require("express");
 
 const AFFECT_BASE =
   process.env.AFFECT_SERVER_URL || "http://localhost:8000";
@@ -151,6 +152,14 @@ async function relaySessionPayload(body) {
   return postJson(`${AFFECT_BASE}/ingest/session`, body);
 }
 
+async function relayLiveFrame(body) {
+  return postJson(`${AFFECT_BASE}/realtime/live-frame`, body);
+}
+
+async function relayLiveSessionEnd(body) {
+  return postJson(`${AFFECT_BASE}/realtime/live-session-end`, body);
+}
+
 function registerRealtimeHttpRoutes(app) {
   const sharedConstants = path.join(__dirname, "../shared/pipeline_public_constants.json");
   const fusionConfig = path.join(__dirname, "../client/fusion/fusion_config.json");
@@ -159,14 +168,14 @@ function registerRealtimeHttpRoutes(app) {
     if (!fs.existsSync(sharedConstants)) {
       return res.status(404).json({ error: "pipeline_public_constants.json not found" });
     }
-    res.sendFile(sharedConstants);
+    res.sendFile(path.resolve(sharedConstants));
   });
 
   app.get("/realtime/fusion-config", (req, res) => {
     if (!fs.existsSync(fusionConfig)) {
       return res.status(404).json({ error: "fusion_config.json not found" });
     }
-    res.sendFile(fusionConfig);
+    res.sendFile(path.resolve(fusionConfig));
   });
 
   app.post("/realtime/session-final", async (req, res) => {
@@ -175,6 +184,26 @@ function registerRealtimeHttpRoutes(app) {
       res.json({ ok: true });
     } catch (e) {
       console.error("session-final relay failed:", e);
+      res.status(e.status || 500).json({ ok: false, error: e.message });
+    }
+  });
+
+  app.post("/realtime/live-frame", express.json({ limit: "25mb" }), async (req, res) => {
+    try {
+      const out = await relayLiveFrame(req.body);
+      res.status(200).json(out);
+    } catch (e) {
+      console.error("live-frame relay failed:", e);
+      res.status(e.status || 500).json({ ok: false, error: e.message, detail: e.body });
+    }
+  });
+
+  app.post("/realtime/live-session-end", express.json({ limit: "1mb" }), async (req, res) => {
+    try {
+      const out = await relayLiveSessionEnd(req.body);
+      res.status(200).json(out);
+    } catch (e) {
+      console.error("live-session-end relay failed:", e);
       res.status(e.status || 500).json({ ok: false, error: e.message });
     }
   });

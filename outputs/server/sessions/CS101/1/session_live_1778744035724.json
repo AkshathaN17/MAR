@@ -2,12 +2,12 @@
   "type": "session_final",
   "class_id": "CS101",
   "student_id": "1",
-  "session_id": "session_2025_01_01",
-  "duration_sec": 23,
-  "total_windows": 3,
+  "session_id": "session_live_1778744035724",
+  "duration_sec": 39,
+  "total_windows": 2,
   "emotion_distribution": {
     "bored": 1.0
   },
   "dominant_emotion": "bored",
-  "ended_at": 1778744249
+  "ended_at": 1778744075
 }
