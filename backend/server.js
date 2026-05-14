@@ -17,9 +17,22 @@ app.use(express.json());
 // =======================
 // MongoDB Connection
 // =======================
-mongoose.connect("mongodb://localhost:27017/mar")
-  .then(() => console.log("ℹ️  INFO: Connected to MongoDB"))
-  .catch(err => console.error("❌ ERROR: MongoDB connection error:", err));
+const DB_URI = process.env.DB_URI || process.env.MONGO_URI;
+const DB_NAME = process.env.DB_NAME;
+
+if (!DB_URI) {
+  console.error("❌ ERROR: DB_URI is not defined. Set DB_URI (Atlas connection string) in .env or environment variables.");
+  process.exit(1);
+}
+
+const mongooseOptions = {
+  dbName: DB_NAME || undefined,
+  autoIndex: process.env.NODE_ENV !== "production",
+};
+
+mongoose.connect(DB_URI, mongooseOptions)
+  .then(() => console.log("ℹ️  INFO: Connected to MongoDB Atlas"))
+  .catch(err => console.error("❌ ERROR: MongoDB Atlas connection error:", err));
 
 // =======================
 // Schemas & Models

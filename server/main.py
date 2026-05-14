@@ -182,6 +182,15 @@ async def get_classroom_analytics(classroom_id: str):
 
 
 # ============================================================
+# Realtime inference (preprocessed crops from browser relay)
+# ============================================================
+
+from server.realtime_infer_api import router as realtime_infer_router
+
+app.include_router(realtime_infer_router, prefix="/realtime", tags=["realtime"])
+
+
+# ============================================================
 # Error Handlers
 # ============================================================
 

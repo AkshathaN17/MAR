@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-													  
+import { BACKEND_URL } from "../../config/appConfig.js";
 import Navbar from "../../components/Navbar";
 
 export default function Login() {
@@ -8,61 +7,86 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("student");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-  const handleLogin = async () => {
     setError("");
-    localStorage.clear(); // clear old session
+    setLoading(true);
+
+    // Clear previous session
+    localStorage.removeItem("user");
+
+    // Trim inputs
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
+
+    // Validation
+    if (!trimmedUsername || !trimmedPassword) {
+      setError("Please enter both username and password.");
+      setLoading(false);
+      return;
+    }
 
     try {
-      // Call backend API depending on role
-      const res = await fetch(`http://localhost:5000/login/${role}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
+      console.log("BACKEND URL:", BACKEND_URL);
+      console.log("Sending login request...");
 
-      if (!res.ok) {
-        const err = await res.json();
-        setError(err.message || "Login failed");
-		
+      const response = await fetch(
+        `${BACKEND_URL}/login/${role}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: trimmedUsername,
+            password: trimmedPassword,
+          }),
+        }
+      );
 
-					 
-												
+      console.log("Response status:", response.status);
+
+      // Read response safely
+      const data = await response.json();
+
+      console.log("Response data:", data);
+
+      // Handle failed login
+      if (!response.ok) {
+        setError(data.message || "Invalid credentials");
+        setLoading(false);
         return;
       }
 
-      const userData = await res.json();
-				   
-										 
-		
+      // Save logged in user
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...data,
+          role,
+        })
+      );
 
-      // Save user in localStorage
-      localStorage.setItem("user", JSON.stringify({ ...userData, role }));
-												  
-			 
-	 
+      console.log("Login successful");
 
-      // Navigate to dashboard
+      // Redirect
       if (role === "student") {
         window.location.href = "/student/dashboard";
       } else {
         window.location.href = "/teacher/dashboard";
-
-					 
-												
-			   
       }
-    } catch (err) {
-      console.error(err);
-      setError("Server error. Please try again.");
-										 
-		
 
-															 
-												  
-			 
+    } catch (err) {
+      console.error("LOGIN ERROR:", err);
+
+      setError(
+        "Unable to connect to server. Check backend connection."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,50 +97,86 @@ export default function Login() {
       <div className="page center-page">
         <div className="card auth-card">
 
+          {/* HERO SECTION */}
           <div className="hero">
             <div className="container">
               <h1>College Learning Management System</h1>
+
               <p>
-                Academic portal for students and faculty of R. V. College of Engineering
+                Academic portal for students and faculty of
+                R. V. College of Engineering
               </p>
             </div>
           </div>
-			  
 
+          {/* LOGIN FORM */}
           <div className="content">
-            <div className="panel" style={{ maxWidth: 420 }}>
+            <div
+              className="panel"
+              style={{ maxWidth: "420px", margin: "0 auto" }}
+            >
               <h2>Portal Login</h2>
 
-              <label>Role</label>
-              <select value={role} onChange={(e) => setRole(e.target.value)}>
-                <option value="student">Student</option>
-                <option value="teacher">Faculty</option>
-              </select>
+              <form onSubmit={handleLogin}>
 
-              <label>Username</label>
-              <input
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
+                {/* ROLE */}
+                <label>Role</label>
 
-              <label>Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                >
+                  <option value="student">Student</option>
+                  <option value="teacher">Faculty</option>
+                </select>
 
-              <button className="btn-primary" onClick={handleLogin}>
-                Sign In
-              </button>
+                {/* USERNAME */}
+                <label>Username</label>
 
-              {error && <p className="error">{error}</p>}
+                <input
+                  type="text"
+                  placeholder="Enter username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+
+                {/* PASSWORD */}
+                <label>Password</label>
+
+                <input
+                  type="password"
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+
+                {/* BUTTON */}
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={loading}
+                >
+                  {loading ? "Signing In..." : "Sign In"}
+                </button>
+
+                {/* ERROR */}
+                {error && (
+                  <p
+                    className="error"
+                    style={{
+                      color: "red",
+                      marginTop: "15px",
+                      textAlign: "center",
+                    }}
+                  >
+                    {error}
+                  </p>
+                )}
+              </form>
             </div>
           </div>
         </div>
-
       </div>
     </>
-	 
   );
 }

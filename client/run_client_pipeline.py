@@ -30,14 +30,14 @@ args = parser.parse_args()
 # --------------------------------------------------
 # Config  (ORIGINAL CONTENT PRESERVED)
 # --------------------------------------------------
-VIDEO_PATH = args.video_path              # 🔹 CHANGED (was hardcoded)
+VIDEO_PATH = args.video_path              
 FUSION_CONFIG_PATH = "client/fusion/fusion_config.json"
 
 # Frame sampling every 20 seconds as required
 FRAME_INTERVAL_SEC = 20
 OUTPUT_DIR = "outputs/client_jsons"
 
-STUDENT_ID = args.student_id              # 🔹 CHANGED (was hardcoded)
+STUDENT_ID = args.student_id              
 CLASS_ID = "CS101"
 SESSION_ID = "session_2025_01_01"
 

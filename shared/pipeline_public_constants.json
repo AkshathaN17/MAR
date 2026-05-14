@@ -1,0 +1,9 @@
+{
+  "frame_interval_sec": 20,
+  "temporal_smoothing_window_size": 3,
+  "temporal_smoothing_confidence_threshold": 0.0,
+  "gaze_eye_target_height": 50,
+  "gaze_eye_resize": 224,
+  "posture_input_resize": 224,
+  "default_class_id": "CS101"
+}

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { BACKEND_URL } from "../../config/appConfig.js";
+import LiveRecordingPanel from "../../components/LiveRecordingPanel.jsx";
 
 export default function UploadVideo() {
   const navigate = useNavigate();
@@ -27,7 +29,7 @@ export default function UploadVideo() {
     formData.append("section", user.section);
     
     try {
-      const res = await fetch("http://localhost:5000/upload-video", {
+      const res = await fetch(`${BACKEND_URL}/upload-video`, {
         method: "POST",
         body: formData,
       });
@@ -46,34 +48,50 @@ export default function UploadVideo() {
 
   return (
     <div className="page">
-      <div className="card">
-        <h2>Upload Video</h2>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "1.25rem",
+          alignItems: "stretch",
+          justifyContent: "center",
+        }}
+      >
+        <div className="card" style={{ flex: "1 1 320px", maxWidth: 520 }}>
+          <h2>Upload Video</h2>
 
-        <p className="info"><strong>Student:</strong> {user.name}</p>
-        <p className="info"><strong>Course:</strong> {course}</p>
-
-        <input
-          type="file"
-          accept="video/*"
-          onChange={(e) => setFile(e.target.files[0])}
-        />
-
-        <button onClick={handleUpload} disabled={!file || loading}>
-          {loading ? "Uploading..." : "Upload"}
-        </button>
-
-        {uploaded && (
-          <p className="success">
-            "{file.name}" uploaded successfully!
+          <p className="info">
+            <strong>Student:</strong> {user.name}
           </p>
-        )}
+          <p className="info">
+            <strong>Course:</strong> {course}
+          </p>
 
-        <button
-          className="secondary"
-          onClick={() => navigate("/student/dashboard")}
-        >
-          Back
-        </button>
+          <input
+            type="file"
+            accept="video/*"
+            onChange={(e) => setFile(e.target.files[0])}
+          />
+
+          <button onClick={handleUpload} disabled={!file || loading}>
+            {loading ? "Uploading..." : "Upload"}
+          </button>
+
+          {uploaded && (
+            <p className="success">"{file.name}" uploaded successfully!</p>
+          )}
+
+          <button
+            className="secondary"
+            onClick={() => navigate("/student/dashboard")}
+          >
+            Back
+          </button>
+        </div>
+
+        <div className="card" style={{ flex: "1 1 320px", maxWidth: 520 }}>
+          <LiveRecordingPanel user={user} course={course} />
+        </div>
       </div>
     </div>
   );

@@ -12,3 +12,10 @@ frontend/.env
 node_modules
 models/best_facial_model.h5
 models/resnet50_6450acc_facial_model.pth
+models/speech_cnn
+models/speech_mlp
+models/speech_wav2vec/wav2vec2_emotion.pt
+models/speech_wav2vec/wav2vec2_emotion_best.pt
+models/speech_wav2vec/speech_wav2vec.pt
+models/speech_wav2vec/__pycache__/
+
