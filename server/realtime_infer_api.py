@@ -56,6 +56,11 @@ def _get_models():
     return _gaze_model, _posture_model
 
 
+def get_inference_models():
+    """Shared gaze/posture singletons (used by live webcam parity pipeline)."""
+    return _get_models()
+
+
 class GazeInferRequest(BaseModel):
     timestamp_sec: int = Field(..., ge=0)
     eye_gray_u8_b64: str = Field(..., description="Base64 of 224*224 uint8 grayscale row-major")

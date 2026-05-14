@@ -186,8 +186,10 @@ async def get_classroom_analytics(classroom_id: str):
 # ============================================================
 
 from server.realtime_infer_api import router as realtime_infer_router
+from server.live_session_pipeline import router as live_session_router
 
 app.include_router(realtime_infer_router, prefix="/realtime", tags=["realtime"])
+app.include_router(live_session_router, prefix="/realtime", tags=["realtime-live"])
 
 
 # ============================================================

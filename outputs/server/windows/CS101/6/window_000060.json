@@ -3,13 +3,12 @@
   "class_id": "CS101",
   "student_id": "6",
   "session_id": "session_live_1778750274691",
-  "timestamp_sec": 0,
-  "emotion": "bored",
-  "confidence": 0.3561,
+  "timestamp_sec": 60,
+  "emotion": "interested",
+  "confidence": 0.2928,
   "emotion_scores": {
-    "bored": 0.356112690013826,
-    "frustrated": 0.178056345006913,
-    "neutral": 0.05935211500230434
+    "interested": 0.2928226089477539,
+    "neutral": 0.07320565223693848
   },
   "fusion_type": "weighted_majority_voting",
   "cues": null
