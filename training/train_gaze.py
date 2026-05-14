@@ -13,7 +13,7 @@ from load_dataset import create_train_test_loaders
 # PATH SETUP (ROBUST & SAFE)
 # --------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATASET_PATH = os.path.join(BASE_DIR, "dataset", "gaze")
+DATASET_PATH = os.path.join(BASE_DIR, "dataset", "gaze_balanced")
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 
 os.makedirs(MODEL_DIR, exist_ok=True)
@@ -24,8 +24,8 @@ os.makedirs(MODEL_DIR, exist_ok=True)
 BATCH_SIZE = 32
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-CNN_MODEL_PATH = os.path.join(MODEL_DIR, "gaze_cnn.pt")
-SVM_MODEL_PATH = os.path.join(MODEL_DIR, "gaze_svm.joblib")
+CNN_MODEL_PATH = os.path.join(MODEL_DIR, "gaze_cnn_balanced.pt")
+SVM_MODEL_PATH = os.path.join(MODEL_DIR, "gaze_svm_balanced.joblib")
 
 
 # --------------------------------------------------

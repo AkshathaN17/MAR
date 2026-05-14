@@ -18,4 +18,4 @@ models/speech_wav2vec/wav2vec2_emotion.pt
 models/speech_wav2vec/wav2vec2_emotion_best.pt
 models/speech_wav2vec/speech_wav2vec.pt
 models/speech_wav2vec/__pycache__/
-
+models/posture_cnn_balanced_v2.pt
