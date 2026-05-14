@@ -8,26 +8,31 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
-const http = require("http");
-const { WebSocketServer } = require("ws");
 const { spawn } = require("child_process");
-const {
-  attachRealtimeWebSocket,
-  registerRealtimeHttpRoutes,
-} = require("./realtimeWs");
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: "4mb" }));
-
-registerRealtimeHttpRoutes(app);
+app.use(express.json());
 
 // =======================
 // MongoDB Connection
 // =======================
-mongoose.connect("mongodb://localhost:27017/mar")
-  .then(() => console.log("ℹ️  INFO: Connected to MongoDB"))
-  .catch(err => console.error("❌ ERROR: MongoDB connection error:", err));
+const DB_URI = process.env.DB_URI || process.env.MONGO_URI;
+const DB_NAME = process.env.DB_NAME;
+
+if (!DB_URI) {
+  console.error("❌ ERROR: DB_URI is not defined. Set DB_URI (Atlas connection string) in .env or environment variables.");
+  process.exit(1);
+}
+
+const mongooseOptions = {
+  dbName: DB_NAME || undefined,
+  autoIndex: process.env.NODE_ENV !== "production",
+};
+
+mongoose.connect(DB_URI, mongooseOptions)
+  .then(() => console.log("ℹ️  INFO: Connected to MongoDB Atlas"))
+  .catch(err => console.error("❌ ERROR: MongoDB Atlas connection error:", err));
 
 // =======================
 // Schemas & Models
@@ -419,13 +424,8 @@ app.post("/api/activity/end", (req, res) => {
 });
 
 // =======================
-// Start Server (HTTP + WebSocket for live recording relay)
+// Start Server
 // =======================
-const server = http.createServer(app);
-const wss = new WebSocketServer({ server, path: "/realtime/ws" });
-attachRealtimeWebSocket(wss);
-
-server.listen(5000, () => {
+app.listen(5000, () => {
   console.log("ℹ️  INFO: Backend running on http://localhost:5000");
-  console.log("ℹ️  INFO: Realtime WebSocket at ws://localhost:5000/realtime/ws");
 });
