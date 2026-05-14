@@ -8,11 +8,19 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
+const http = require("http");
+const { WebSocketServer } = require("ws");
 const { spawn } = require("child_process");
+const {
+  attachRealtimeWebSocket,
+  registerRealtimeHttpRoutes,
+} = require("./realtimeWs");
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "4mb" }));
+
+registerRealtimeHttpRoutes(app);
 
 // =======================
 // MongoDB Connection
@@ -411,8 +419,13 @@ app.post("/api/activity/end", (req, res) => {
 });
 
 // =======================
-// Start Server
+// Start Server (HTTP + WebSocket for live recording relay)
 // =======================
-app.listen(5000, () => {
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server, path: "/realtime/ws" });
+attachRealtimeWebSocket(wss);
+
+server.listen(5000, () => {
   console.log("ℹ️  INFO: Backend running on http://localhost:5000");
+  console.log("ℹ️  INFO: Realtime WebSocket at ws://localhost:5000/realtime/ws");
 });
