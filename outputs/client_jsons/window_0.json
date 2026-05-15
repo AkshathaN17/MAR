@@ -5,7 +5,7 @@
       "cue": "gaze",
       "timestamp_sec": 0,
       "prediction": "looking_away",
-      "confidence": 0.9807101795644064,
+      "confidence": 0.9879971388255131,
       "quality": "good",
       "window_size": 1,
       "temporal_smoothed": true,
@@ -35,37 +35,83 @@
         "neutral": 0.2
       },
       "mapping_quality": "mapped"
+    },
+    "facial": {
+      "cue": "facial",
+      "timestamp_sec": 0,
+      "prediction": "confused",
+      "probabilities": {
+        "bored": 0.04854525998234749,
+        "confused": 0.41383084654808044,
+        "frustrated": 0.025295615196228027,
+        "interested": 0.2839947044849396,
+        "neutral": 0.22833351790905
+      },
+      "confidence": 0.41383084654808044,
+      "quality": "good",
+      "window_size": 1,
+      "temporal_smoothed": true,
+      "emotion_distribution": {
+        "confused": 0.8,
+        "frustrated": 0.1,
+        "neutral": 0.1
+      },
+      "mapping_quality": "mapped"
+    },
+    "speech": {
+      "cue": "speech",
+      "timestamp_sec": 0,
+      "prediction": "unknown",
+      "probabilities": {
+        "neutral": 0.0,
+        "interested": 0.0,
+        "bored": 0.0,
+        "frustrated": 0.0,
+        "confused": 0.0
+      },
+      "confidence": 0.0,
+      "emotion_distribution": {
+        "interested": 0.0,
+        "bored": 0.0,
+        "confused": 0.0,
+        "frustrated": 0.0,
+        "neutral": 1.0
+      },
+      "mapping_quality": "fallback_neutral"
     }
   },
   "fusion": {
     "timestamp_sec": 0,
-    "final_emotion": "bored",
-    "confidence": 0.3531,
+    "final_emotion": "interested",
+    "confidence": 0.2195,
     "emotion_scores": {
-      "bored": 0.3530556646431863,
-      "frustrated": 0.17652783232159314,
-      "neutral": 0.1319948620174557,
-      "interested": 0.29260900497436526
+      "bored": 0.17783948498859234,
+      "frustrated": 0.09719635942525778,
+      "neutral": 0.0927807195284205,
+      "interested": 0.21945675373077395,
+      "confused": 0.06621293544769288
     },
     "contributing_cues": [
       "gaze",
-      "posture"
+      "posture",
+      "facial"
     ],
     "fusion_type": "weighted_majority_voting"
   },
   "streaming_payload": {
     "type": "window_update",
     "class_id": "CS101",
-    "student_id": "1",
+    "student_id": "6",
     "session_id": "session_2025_01_01",
     "timestamp_sec": 0,
-    "emotion": "bored",
-    "confidence": 0.3531,
+    "emotion": "interested",
+    "confidence": 0.2195,
     "emotion_scores": {
-      "bored": 0.3530556646431863,
-      "frustrated": 0.17652783232159314,
-      "neutral": 0.1319948620174557,
-      "interested": 0.29260900497436526
+      "bored": 0.17783948498859234,
+      "frustrated": 0.09719635942525778,
+      "neutral": 0.0927807195284205,
+      "interested": 0.21945675373077395,
+      "confused": 0.06621293544769288
     },
     "fusion_type": "weighted_majority_voting"
   }

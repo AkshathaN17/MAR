@@ -22,7 +22,18 @@ async function postJson(url, body) {
     json = { raw: text };
   }
   if (!res.ok) {
-    const err = new Error(json.detail || json.message || res.statusText || "HTTP error");
+    const detail = json.detail;
+    const detailStr = Array.isArray(detail)
+      ? detail.map((d) => d.msg || JSON.stringify(d)).join("; ")
+      : detail;
+    const err = new Error(
+      detailStr ||
+        json.message ||
+        json.raw ||
+        (typeof text === "string" ? text.trim() : "") ||
+        res.statusText ||
+        "HTTP error"
+    );
     err.status = res.status;
     err.body = json;
     throw err;

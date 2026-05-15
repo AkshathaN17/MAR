@@ -5,9 +5,9 @@
   "total_windows": 4,
   "duration_sec": 59,
   "emotion_distribution": {
-    "bored": 0.25,
-    "neutral": 0.75
+    "interested": 0.75,
+    "neutral": 0.25
   },
-  "dominant_emotion": "neutral",
-  "average_confidence": 0.089
+  "dominant_emotion": "interested",
+  "average_confidence": 0.162
 }
