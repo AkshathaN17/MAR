@@ -9,9 +9,9 @@ import LaunchQuiz from "./pages/teacher/LaunchQuiz";
 import ActivityStats from "./pages/teacher/ActivityStats";
 import LiveActivity from "./pages/student/LiveActivity";
 import LaunchWordCloud from "./pages/teacher/LaunchWordCloud";
+import BreakoutRoom from "./pages/teacher/BreakoutRoom";
+import BreakoutActivity from "./pages/student/BreakoutActivity";
 import "./styles/theme.css";
-
-
 
 function App() {
   return (
@@ -26,12 +26,9 @@ function App() {
       <Route path="/teacher/launch-quiz" element={<LaunchQuiz />} />
       <Route path="/teacher/activity-stats" element={<ActivityStats />} />
       <Route path="/student/activity" element={<LiveActivity />} />
-      <Route
-  path="/teacher/launch-wordcloud"
-  element={<LaunchWordCloud />}
-/>
-
-
+      <Route path="/teacher/launch-wordcloud" element={<LaunchWordCloud />} />
+      <Route path="/teacher/breakout/:emotion" element={<BreakoutRoom />} />
+      <Route path="/student/breakout-activity" element={<BreakoutActivity />} />
     </Routes>
   );
 }

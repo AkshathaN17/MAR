@@ -1,21 +1,33 @@
-											 
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { useGamification } from "../../context/GamificationContext";
-import { students } from "../../data/users";
 
 export default function ActivityStats() {
   const navigate = useNavigate();
   const { activity, nextQuestion, endActivity } = useGamification();
   const user = JSON.parse(localStorage.getItem("user"));
 
+  // Fetch real students from backend (replaces removed mock data import)
+  const [students, setStudents] = useState([]);
+  useEffect(() => {
+    if (activity?.section) {
+      fetch(`http://localhost:5000/api/students?section=${encodeURIComponent(activity.section)}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (Array.isArray(data)) setStudents(data);
+        })
+        .catch(() => setStudents([]));
+    }
+  }, [activity?.section]);
+
   //const [viewQuestionIndex, setViewQuestionIndex] = useState(0);
-	const viewQuestionIndex =
-  activity?.type === "quiz"
-    ? activity.currentQuestionIndex
-    : 0;
-																
+  const viewQuestionIndex =
+    activity?.type === "quiz"
+      ? activity.currentQuestionIndex
+      : 0;
+
 
   /* 🔐 Auth guard */
   useEffect(() => {
@@ -33,22 +45,22 @@ export default function ActivityStats() {
 */
   /* 🎲 Stable random rotations for word cloud */
   const [rotations] = useState(() => {
-  if (!activity || activity.type !== "wordcloud") return {};
+    if (!activity || activity.type !== "wordcloud") return {};
 
-  const map = {};
-  Object.values(activity.responses || {}).forEach((word) => {
-    if (!map[word]) {
-      map[word] = Math.random() * 10 - 5;
-    }
+    const map = {};
+    Object.values(activity.responses || {}).forEach((word) => {
+      if (!map[word]) {
+        map[word] = Math.random() * 10 - 5;
+      }
+    });
+
+    return map;
   });
-
-  return map;
-});
 
 
   //
- 
-//
+
+  //
   if (!activity) {
     return (
       <>
@@ -61,10 +73,10 @@ export default function ActivityStats() {
   }
 
   /* ===================== WORD CLOUD ===================== */
-															  
 
-						
-															
+
+
+
 
   if (activity.type === "wordcloud") {
     const freq = {};
@@ -72,22 +84,22 @@ export default function ActivityStats() {
       freq[word] = (freq[word] || 0) + 1;
     });
 
-													  
 
-		  
-	  
-										   
+
+
+
+
 
     const maxFreq = Math.max(...Object.values(freq), 1);
-								  
+
 
     return (
       <>
         <Navbar title="Word Cloud Results" />
 
         <div className="panel">
-          <h2>{activity.prompt}</h2>	 		   
-															
+          <h2>{activity.prompt}</h2>
+
 
           {Object.keys(freq).length === 0 && <p>No responses yet</p>}
 
@@ -124,9 +136,9 @@ export default function ActivityStats() {
               })}
             </div>
           )}
-			 
 
-          <hr />			 
+
+          <hr />
           <h3>Student Responses</h3>
           <ul>
             {Object.entries(activity.responses || {}).map(
@@ -226,11 +238,11 @@ export default function ActivityStats() {
             ))}
           </ul>
 
-	  
 
-          <hr />										 
-			 
-		 	    <h3>Leaderboard (XP)</h3>
+
+          <hr />
+
+          <h3>Leaderboard (XP)</h3>
           <table style={{ width: "100%", marginBottom: "20px" }}>
             <thead>
               <tr>
@@ -256,7 +268,7 @@ export default function ActivityStats() {
 
           <div style={{ display: "flex", gap: "12px" }}>
             {activity.currentQuestionIndex <
-            activity.questions.length - 1 ? (
+              activity.questions.length - 1 ? (
               <button className="btn-primary" onClick={nextQuestion}>
                 Next Question (Q
                 {activity.currentQuestionIndex + 2})

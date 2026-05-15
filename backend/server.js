@@ -342,6 +342,21 @@ app.post("/upload-video", upload.single("video"), (req, res) => {
 });
 
 // =======================
+// Students API
+// =======================
+app.get("/api/students", async (req, res) => {
+  const { section } = req.query;
+  try {
+    const query = section ? { section } : {};
+    const studentList = await Student.find(query).select("sid name section subject -_id");
+    res.json(studentList);
+  } catch (err) {
+    console.error("❌ ERROR: Fetching students failed:", err);
+    res.status(500).json({ message: "Error fetching students", details: err.message });
+  }
+});
+
+// =======================
 // Quiz / Wordcloud APIs
 // =======================
 let activeActivity = null;
@@ -488,6 +503,232 @@ app.post("/api/wordcloud/submit", (req, res) => {
 app.post("/api/activity/end", (req, res) => {
   activeActivity = null;
   res.json({ success: true });
+});
+
+// =======================
+// Breakout Rooms
+// =======================
+
+/**
+ * breakoutRooms[emotion] = {
+ *   active: boolean,
+ *   section: string,
+ *   subject: string,
+ *   students: [{ sid, name }],
+ *   activity: null | { type, questions, currentQuestionIndex, responses }
+ * }
+ */
+const breakoutRooms = {};
+
+const EMOTIONS = ["neutral", "interested", "bored", "confused", "frustrated"];
+
+// GET /api/breakout/students/:emotion?section=&subject=
+// Returns the list of students whose most-recent Result has this emotion.
+app.get("/api/breakout/students/:emotion", async (req, res) => {
+  const { emotion } = req.params;
+  const { section, subject } = req.query;
+
+  if (!section || !subject) {
+    return res.status(400).json({ error: "Missing section or subject" });
+  }
+
+  try {
+    // For each student in this section, find their most-recent Result record
+    const latestPerStudent = await Result.aggregate([
+      { $match: { section, subject } },
+      { $sort: { date: -1, _id: -1 } },
+      {
+        $group: {
+          _id: "$sid",
+          emotion: { $first: "$emotion" },
+        },
+      },
+      { $match: { emotion } },
+    ]);
+
+    const sids = latestPerStudent.map((r) => r._id);
+
+    // Look up names from Student collection
+    const studentDocs = await Student.find({ sid: { $in: sids } }).select(
+      "sid name section -_id"
+    );
+
+    res.json(studentDocs);
+  } catch (err) {
+    console.error("❌ ERROR: breakout/students failed:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/breakout/launch/:emotion
+// Teacher launches a breakout room for the given emotion.
+app.post("/api/breakout/launch/:emotion", async (req, res) => {
+  const { emotion } = req.params;
+  const { section, subject } = req.body;
+
+  if (!EMOTIONS.includes(emotion)) {
+    return res.status(400).json({ error: "Invalid emotion" });
+  }
+
+  try {
+    // Resolve students with this emotion
+    const latestPerStudent = await Result.aggregate([
+      { $match: { section, subject } },
+      { $sort: { date: -1, _id: -1 } },
+      { $group: { _id: "$sid", emotion: { $first: "$emotion" } } },
+      { $match: { emotion } },
+    ]);
+
+    const sids = latestPerStudent.map((r) => r._id);
+    const studentDocs = await Student.find({ sid: { $in: sids } }).select(
+      "sid name -_id"
+    );
+
+    breakoutRooms[emotion] = {
+      active: true,
+      section,
+      subject,
+      students: studentDocs,
+      activity: null,
+    };
+
+    console.log(
+      `✅ Breakout room launched for [${emotion}] — ${studentDocs.length} students`
+    );
+    res.json({ success: true, students: studentDocs });
+  } catch (err) {
+    console.error("❌ ERROR: breakout/launch failed:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/breakout/status/:emotion
+// Teacher / student polls whether this room is active.
+app.get("/api/breakout/status/:emotion", (req, res) => {
+  const { emotion } = req.params;
+  const room = breakoutRooms[emotion];
+  res.json({ active: room?.active === true });
+});
+
+// GET /api/breakout/my-room?studentId=&section=&subject=
+// Student polls to check if they have been invited to any breakout room.
+app.get("/api/breakout/my-room", async (req, res) => {
+  const { studentId, section, subject } = req.query;
+
+  if (!studentId || !section || !subject) {
+    return res.json({ active: false });
+  }
+
+  try {
+    // Find student's most recent emotion
+    const latest = await Result.findOne(
+      { sid: Number(studentId), section, subject },
+      {},
+      { sort: { date: -1, _id: -1 } }
+    );
+
+    if (!latest) return res.json({ active: false });
+
+    const emotion = latest.emotion;
+    const room = breakoutRooms[emotion];
+
+    if (!room || !room.active) return res.json({ active: false });
+
+    // Confirm this student is in the room's student list
+    const inRoom = room.students.some((s) => s.sid === Number(studentId));
+    if (!inRoom) return res.json({ active: false });
+
+    res.json({ active: true, emotion });
+  } catch (err) {
+    console.error("❌ ERROR: breakout/my-room failed:", err);
+    res.json({ active: false });
+  }
+});
+
+// POST /api/breakout/:emotion/activity
+// Teacher launches a quiz inside the breakout room.
+app.post("/api/breakout/:emotion/activity", (req, res) => {
+  const { emotion } = req.params;
+  const room = breakoutRooms[emotion];
+
+  if (!room || !room.active) {
+    return res.status(400).json({ error: "Breakout room not active" });
+  }
+
+  room.activity = { ...req.body, responses: {}, currentQuestionIndex: 0 };
+  res.json({ success: true, activity: room.activity });
+});
+
+// GET /api/breakout/:emotion/activity
+// Teacher/student polls for the current quiz in this room.
+app.get("/api/breakout/:emotion/activity", (req, res) => {
+  const { emotion } = req.params;
+  const room = breakoutRooms[emotion];
+  res.json(room?.activity ?? null);
+});
+
+// POST /api/breakout/:emotion/activity/submit
+// Student submits a quiz answer in the breakout room.
+app.post("/api/breakout/:emotion/activity/submit", (req, res) => {
+  const { emotion } = req.params;
+  const { studentName, questionIndex, answer } = req.body;
+  const room = breakoutRooms[emotion];
+
+  if (!room || !room.active || !room.activity) {
+    return res.status(400).json({ error: "No active breakout activity" });
+  }
+
+  if (!room.activity.responses[studentName]) {
+    room.activity.responses[studentName] = { answers: [], xp: 0 };
+  }
+
+  room.activity.responses[studentName].answers[questionIndex] = answer;
+  const correct =
+    answer === room.activity.questions[questionIndex].correctAnswer;
+  room.activity.responses[studentName].xp += correct ? 10 : 2;
+
+  res.json({ success: true });
+});
+
+// POST /api/breakout/:emotion/activity/next
+// Teacher advances to the next question in the breakout quiz.
+app.post("/api/breakout/:emotion/activity/next", (req, res) => {
+  const { emotion } = req.params;
+  const room = breakoutRooms[emotion];
+
+  if (!room || !room.activity) {
+    return res.status(400).json({ error: "No active breakout activity" });
+  }
+
+  if (
+    room.activity.currentQuestionIndex <
+    room.activity.questions.length - 1
+  ) {
+    room.activity.currentQuestionIndex++;
+  }
+
+  res.json(room.activity);
+});
+
+// POST /api/breakout/:emotion/end
+// Teacher ends the breakout room.
+app.post("/api/breakout/:emotion/end", (req, res) => {
+  const { emotion } = req.params;
+  if (breakoutRooms[emotion]) {
+    breakoutRooms[emotion].active = false;
+    breakoutRooms[emotion].activity = null;
+  }
+  res.json({ success: true });
+});
+
+// GET /api/breakout/all-status?section=&subject=
+// Teacher polls status of all emotion rooms at once.
+app.get("/api/breakout/all-status", (req, res) => {
+  const status = {};
+  EMOTIONS.forEach((e) => {
+    status[e] = breakoutRooms[e]?.active === true;
+  });
+  res.json(status);
 });
 
 // =======================
