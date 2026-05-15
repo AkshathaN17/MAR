@@ -2,13 +2,14 @@
   "type": "window_update",
   "class_id": "CS101",
   "student_id": "1",
-  "session_id": "session_live_1778818367447",
+  "session_id": "session_live_1778825018564",
   "timestamp_sec": 40,
-  "emotion": "interested",
-  "confidence": 0.1649,
+  "emotion": "bored",
+  "confidence": 0.1777,
   "emotion_scores": {
-    "interested": 0.16487839221954348,
-    "neutral": 0.04121959805488587
+    "bored": 0.17768746323067222,
+    "frustrated": 0.08884373161533611,
+    "neutral": 0.029614577205112038
   },
   "fusion_type": "weighted_majority_voting",
   "cues": null

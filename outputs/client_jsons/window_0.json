@@ -5,7 +5,7 @@
       "cue": "gaze",
       "timestamp_sec": 0,
       "prediction": "looking_away",
-      "confidence": 0.9879971388255131,
+      "confidence": 0.9807101795644064,
       "quality": "good",
       "window_size": 1,
       "temporal_smoothed": true,
@@ -41,11 +41,11 @@
       "timestamp_sec": 0,
       "prediction": "confused",
       "probabilities": {
-        "bored": 0.04854525998234749,
+        "bored": 0.048545271158218384,
         "confused": 0.41383084654808044,
-        "frustrated": 0.025295615196228027,
-        "interested": 0.2839947044849396,
-        "neutral": 0.22833351790905
+        "frustrated": 0.02529563196003437,
+        "interested": 0.28399473428726196,
+        "neutral": 0.2283334881067276
       },
       "confidence": 0.41383084654808044,
       "quality": "good",
@@ -85,9 +85,9 @@
     "final_emotion": "interested",
     "confidence": 0.2195,
     "emotion_scores": {
-      "bored": 0.17783948498859234,
-      "frustrated": 0.09719635942525778,
-      "neutral": 0.0927807195284205,
+      "bored": 0.17652783232159314,
+      "frustrated": 0.09654053309175818,
+      "neutral": 0.09256211075058729,
       "interested": 0.21945675373077395,
       "confused": 0.06621293544769288
     },
@@ -101,15 +101,15 @@
   "streaming_payload": {
     "type": "window_update",
     "class_id": "CS101",
-    "student_id": "6",
+    "student_id": "2",
     "session_id": "session_2025_01_01",
     "timestamp_sec": 0,
     "emotion": "interested",
     "confidence": 0.2195,
     "emotion_scores": {
-      "bored": 0.17783948498859234,
-      "frustrated": 0.09719635942525778,
-      "neutral": 0.0927807195284205,
+      "bored": 0.17652783232159314,
+      "frustrated": 0.09654053309175818,
+      "neutral": 0.09256211075058729,
       "interested": 0.21945675373077395,
       "confused": 0.06621293544769288
     },

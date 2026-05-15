@@ -96,6 +96,33 @@ MAR/
 
 ---
 
+## Running the Server
+
+Use the workspace virtual environment to run `server.main` and avoid missing-package errors.
+
+Windows PowerShell:
+```powershell
+./run_server.ps1
+```
+
+Windows Command Prompt:
+```bat
+run_server.bat
+```
+
+Manual startup with explicit port selection:
+```powershell
+venv\Scripts\python.exe -m server.main --port 8001
+```
+
+Or set an environment variable before startup:
+```powershell
+$env:SERVER_PORT = "8001"
+venv\Scripts\python.exe -m server.main
+```
+
+If port `8000` is already in use, choose a different port rather than changing code.
+
 ## 1. Shared Schemas (Pydantic)
 
 All data structures are validated using Pydantic schemas in `shared/schemas.py`:

@@ -5,7 +5,7 @@
       "cue": "gaze",
       "timestamp_sec": 39,
       "prediction": "looking_away",
-      "confidence": 0.9863967149528117,
+      "confidence": 0.9839231729765837,
       "quality": "good",
       "window_size": 3,
       "temporal_smoothed": true,
@@ -25,7 +25,7 @@
         "sitting_upright": 0.015071367844939232,
         "writing": 0.9389716982841492,
         "hands_on_face": 0.0026843480300158262,
-        "slouching": 0.043272651731967926
+        "slouching": 0.04327266290783882
       },
       "quality": "good",
       "window_size": 3,
@@ -41,11 +41,11 @@
       "timestamp_sec": 39,
       "prediction": "confused",
       "probabilities": {
-        "bored": 0.0709301233291626,
-        "confused": 0.3244360387325287,
-        "frustrated": 0.026664195582270622,
-        "interested": 0.22844471037387848,
-        "neutral": 0.34952491521835327
+        "bored": 0.07093013823032379,
+        "confused": 0.32443639636039734,
+        "frustrated": 0.02666417509317398,
+        "interested": 0.22844460606575012,
+        "neutral": 0.34952473640441895
       },
       "confidence": 0.41383084654808044,
       "quality": "good",
@@ -85,9 +85,9 @@
     "final_emotion": "interested",
     "confidence": 0.2167,
     "emotion_scores": {
-      "bored": 0.1775514086915061,
-      "frustrated": 0.09705232127671466,
-      "neutral": 0.09205395176730231,
+      "bored": 0.17710617113578506,
+      "frustrated": 0.09682970249885414,
+      "neutral": 0.09197974550801548,
       "interested": 0.21674173355102538,
       "confused": 0.06621293544769288
     },
@@ -101,15 +101,15 @@
   "streaming_payload": {
     "type": "window_update",
     "class_id": "CS101",
-    "student_id": "6",
+    "student_id": "2",
     "session_id": "session_2025_01_01",
     "timestamp_sec": 39,
     "emotion": "interested",
     "confidence": 0.2167,
     "emotion_scores": {
-      "bored": 0.1775514086915061,
-      "frustrated": 0.09705232127671466,
-      "neutral": 0.09205395176730231,
+      "bored": 0.17710617113578506,
+      "frustrated": 0.09682970249885414,
+      "neutral": 0.09197974550801548,
       "interested": 0.21674173355102538,
       "confused": 0.06621293544769288
     },

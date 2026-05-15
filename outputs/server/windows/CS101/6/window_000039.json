@@ -7,9 +7,9 @@
   "emotion": "interested",
   "confidence": 0.2167,
   "emotion_scores": {
-    "bored": 0.1775514086915061,
-    "frustrated": 0.09705232127671466,
-    "neutral": 0.09205395176730231,
+    "bored": 0.17711419113583968,
+    "frustrated": 0.09683371249888145,
+    "neutral": 0.09198108217469124,
     "interested": 0.21674173355102538,
     "confused": 0.06621293544769288
   },

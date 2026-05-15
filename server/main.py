@@ -231,7 +231,35 @@ async def shutdown_event():
 # ============================================================
 
 if __name__ == "__main__":
+    import argparse
+    import os
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    parser = argparse.ArgumentParser(
+        description="Run the Affect Analysis API server"
+    )
+    parser.add_argument(
+        "--host",
+        default=os.getenv("SERVER_HOST", "0.0.0.0"),
+        help="Server host address (default: 0.0.0.0)",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(os.getenv("SERVER_PORT", "8000")),
+        help="Server port (default: 8000)",
+    )
+    parser.add_argument(
+        "--reload",
+        action="store_true",
+        help="Enable auto-reload for development",
+    )
+    args = parser.parse_args()
+
+    uvicorn.run(
+        app,
+        host=args.host,
+        port=args.port,
+        reload=args.reload,
+    )
 
