@@ -10,8 +10,18 @@
     "bored": 0.17696927999946296,
     "frustrated": 0.08848463999973148,
     "neutral": 0.084322874704157,
-    "interested": 0.12793198764324187
+    "interested": 0.12793198764324187,
+  "session_id": "session_live_1778821851061",
+  "timestamp_sec": 0,
+  "emotion": "neutral",
+  "confidence": 0.0,
+  "emotion_scores": {
+    "interested": 0.0,
+    "bored": 0.0,
+    "confused": 0.0,
+    "frustrated": 0.0,
+    "neutral": 0.0
   },
-  "fusion_type": "weighted_majority_voting",
+  "fusion_type": "fallback_neutral",
   "cues": null
 }

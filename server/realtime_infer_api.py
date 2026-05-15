@@ -22,6 +22,8 @@ router = APIRouter()
 
 _gaze_model = None
 _posture_model = None
+_facial_model = None
+_speech_model = None
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CONSTANTS_PATH = PROJECT_ROOT / "shared" / "pipeline_public_constants.json"
@@ -37,23 +39,104 @@ def _get_models():
     if _gaze_model is not None and _posture_model is not None:
         return _gaze_model, _posture_model
 
-    from client.inference.gaze_inference import GazeInference
-    from client.inference.posture_inference import PostureInference
+    try:
+        from client.inference.gaze_inference import GazeInference
+        from client.inference.posture_inference import PostureInference
+    except Exception as e:
+        logger.exception("Failed to import gaze/posture inference modules")
+        raise RuntimeError(
+            "Could not import gaze/posture models. This is often a broken torch/torchvision "
+            f"install (e.g. 'operator torchvision::nms does not exist'). Original error: {e!s}"
+        ) from e
 
-    gaze = GazeInference(
-        cnn_model_path=str(PROJECT_ROOT / "models" / "gaze_cnn.pt"),
-        svm_model_path=str(PROJECT_ROOT / "models" / "gaze_svm.joblib"),
-        device="cpu",
-    )
-    posture = PostureInference(
-        model_path=str(PROJECT_ROOT / "models" / "posture_cnn.pt"),
-        class_map_path=str(PROJECT_ROOT / "models" / "posture_class_map.json"),
-        device="cpu",
-    )
+    try:
+        gaze = GazeInference(
+            cnn_model_path=str(PROJECT_ROOT / "models" / "gaze_cnn.pt"),
+            svm_model_path=str(PROJECT_ROOT / "models" / "gaze_svm.joblib"),
+            device="cpu",
+        )
+        posture = PostureInference(
+            model_path=str(PROJECT_ROOT / "models" / "posture_cnn.pt"),
+            class_map_path=str(PROJECT_ROOT / "models" / "posture_class_map.json"),
+            device="cpu",
+        )
+    except Exception as e:
+        logger.exception("Failed to construct gaze/posture models")
+        raise RuntimeError(f"Gaze/posture model load failed: {e!s}") from e
     _gaze_model = gaze
     _posture_model = posture
     logger.info("Realtime inference models loaded")
     return _gaze_model, _posture_model
+
+
+class _FacialLiveStub:
+    """Used when facial weights are missing or FacialInference fails to import/load."""
+
+    def infer(self, frame, timestamp_sec: int) -> Dict[str, Any]:
+        return {
+            "cue": "facial",
+            "timestamp_sec": timestamp_sec,
+            "prediction": "unknown",
+            "probabilities": {},
+            "confidence": 0.0,
+        }
+
+
+class _SpeechLiveStub:
+    """Same output as SpeechInference.infer(..., video_path=None) when speech cannot load."""
+
+    def infer(self, frame, timestamp_sec: int, video_path=None) -> Dict[str, Any]:
+        return {
+            "cue": "speech",
+            "timestamp_sec": timestamp_sec,
+            "prediction": "unknown",
+            "probabilities": {
+                "Neutral": 0.0,
+                "Interested": 0.0,
+                "Bored": 0.0,
+                "Frustrated": 0.0,
+                "Confused": 0.0,
+            },
+            "confidence": 0.0,
+        }
+
+
+def get_full_pipeline_models():
+    """
+    Same four models as client/run_client_pipeline._init_models (gaze, posture,
+    facial, speech). Used by live JPEG pipeline; gaze/posture reuse /infer/* singletons.
+
+    Facial or speech may fall back to stubs if weights/HF/transformers fail so live-frame
+    still returns JSON instead of a generic 500.
+    """
+    global _facial_model, _speech_model
+    gaze, posture = _get_models()
+    if _facial_model is None:
+        try:
+            from client.inference.facial_inference import FacialInference
+
+            _facial_model = FacialInference(
+                model_path=str(PROJECT_ROOT / "models" / "best_facial_model.pth"),
+                class_map_path=str(PROJECT_ROOT / "models" / "facial_class_map.json"),
+                device="cpu",
+            )
+            logger.info("Facial model loaded for full pipeline")
+        except Exception as e:
+            logger.warning("Facial model unavailable; using stub for live pipeline: %s", e)
+            _facial_model = _FacialLiveStub()
+    if _speech_model is None:
+        try:
+            from client.inference.speech_inference import SpeechInference
+
+            _speech_model = SpeechInference(
+                model_path=str(PROJECT_ROOT / "models" / "speech_wav2vec" / "speech_wav2vec.pt"),
+                device="cpu",
+            )
+            logger.info("Speech model loaded for full pipeline")
+        except Exception as e:
+            logger.warning("Speech model unavailable; using stub for live pipeline: %s", e)
+            _speech_model = _SpeechLiveStub()
+    return gaze, posture, _facial_model, _speech_model
 
 
 def get_inference_models():

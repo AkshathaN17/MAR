@@ -4,15 +4,15 @@
   "student_id": "6",
   "session_id": "session_2025_01_01",
   "timestamp_sec": 39,
-  "emotion": "neutral",
-  "confidence": 0.0,
+  "emotion": "interested",
+  "confidence": 0.2167,
   "emotion_scores": {
-    "interested": 0.0,
-    "bored": 0.0,
-    "confused": 0.0,
-    "frustrated": 0.0,
-    "neutral": 0.0
+    "bored": 0.1775514086915061,
+    "frustrated": 0.09705232127671466,
+    "neutral": 0.09205395176730231,
+    "interested": 0.21674173355102538,
+    "confused": 0.06621293544769288
   },
-  "fusion_type": "fallback_neutral",
+  "fusion_type": "weighted_majority_voting",
   "cues": null
 }

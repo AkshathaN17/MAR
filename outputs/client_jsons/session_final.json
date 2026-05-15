@@ -1,13 +1,13 @@
 {
   "type": "session_final",
   "class_id": "CS101",
-  "student_id": "1",
+  "student_id": "6",
   "session_id": "session_2025_01_01",
   "duration_sec": 23,
   "total_windows": 3,
   "emotion_distribution": {
-    "bored": 1.0
+    "interested": 1.0
   },
-  "dominant_emotion": "bored",
-  "ended_at": 1778744249
+  "dominant_emotion": "interested",
+  "ended_at": 1778821784
 }

@@ -21,13 +21,14 @@ from typing import Any, Dict
 import cv2
 import numpy as np
 from fastapi import APIRouter, HTTPException
+from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
 
 from client.fusion.cue_to_affect import CueToAffectMapper
 from client.fusion.fusion_engine import FusionEngine
 from client.packaging.data_packager import DataPackager
 from client.temporal.temporal_smoothing import TemporalSmoother
-from server.realtime_infer_api import get_inference_models
+from server.realtime_infer_api import get_full_pipeline_models
 from server.persistence.storage import StorageService
 from server.services.aggregation import AggregationService
 from shared.schemas import SessionPayload, WindowPayload
@@ -59,6 +60,8 @@ class LiveSessionState:
     session_id: str
     gaze_smoother: TemporalSmoother
     posture_smoother: TemporalSmoother
+    facial_smoother: TemporalSmoother
+    speech_smoother: TemporalSmoother
     cue_mapper: CueToAffectMapper
     fusion_engine: FusionEngine
     packager: DataPackager
@@ -90,6 +93,12 @@ def _get_or_create_session(student_id: str, class_id: str, session_id: str) -> L
                 window_size=win_size, confidence_threshold=conf_th
             ),
             posture_smoother=TemporalSmoother(
+                window_size=win_size, confidence_threshold=conf_th
+            ),
+            facial_smoother=TemporalSmoother(
+                window_size=win_size, confidence_threshold=conf_th
+            ),
+            speech_smoother=TemporalSmoother(
                 window_size=win_size, confidence_threshold=conf_th
             ),
             cue_mapper=CueToAffectMapper(fusion_cfg["cue_to_emotion"]),
@@ -136,61 +145,106 @@ def _decode_jpeg_bgr(jpeg_b64: str) -> np.ndarray:
     return frame
 
 
+def _cue_for_temporal(cue: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Facial/speech infer dicts omit ``quality``; TemporalSmoother expects it.
+    Gaze/posture always set quality from their detectors.
+    """
+    if "quality" in cue:
+        return cue
+    out = dict(cue)
+    pred = out.get("prediction")
+    conf = float(out.get("confidence") or 0.0)
+    out["quality"] = (
+        "good"
+        if pred not in (None, "unknown") and conf > 0.0
+        else "low_signal"
+    )
+    return out
+
+
 @router.post("/live-frame")
 def live_frame(req: LiveFrameRequest) -> Dict[str, Any]:
     """
     One iteration of run_client_pipeline loop: infer (parallel), smooth, map,
     fuse, validate WindowPayload, persist like /ingest/window.
     """
-    frame = _decode_jpeg_bgr(req.jpeg_b64)
-    state = _get_or_create_session(req.student_id, req.class_id, req.session_id)
+    try:
+        frame = _decode_jpeg_bgr(req.jpeg_b64)
+        state = _get_or_create_session(req.student_id, req.class_id, req.session_id)
 
-    gaze_model, posture_model = get_inference_models()
-    ts = int(req.timestamp_sec)
+        gaze_model, posture_model, facial_model, speech_model = get_full_pipeline_models()
+        ts = int(req.timestamp_sec)
 
-    with ThreadPoolExecutor(max_workers=2) as ex:
-        gaze_future = ex.submit(gaze_model.infer, frame, ts)
-        posture_future = ex.submit(posture_model.infer, frame, ts)
-        gaze_raw = gaze_future.result()
-        posture_raw = posture_future.result()
+        with ThreadPoolExecutor(max_workers=4) as ex:
+            gaze_future = ex.submit(gaze_model.infer, frame, ts)
+            posture_future = ex.submit(posture_model.infer, frame, ts)
+            facial_future = ex.submit(facial_model.infer, frame, ts)
+            speech_future = ex.submit(speech_model.infer, frame, ts, None)
+            gaze_raw = gaze_future.result()
+            posture_raw = posture_future.result()
+            facial_raw = facial_future.result()
+            speech_raw = speech_future.result()
 
-    gaze_smoothed = state.gaze_smoother.update(gaze_raw)
-    posture_smoothed = state.posture_smoother.update(posture_raw)
+        gaze_smoothed = state.gaze_smoother.update(gaze_raw)
+        posture_smoothed = state.posture_smoother.update(posture_raw)
+        facial_smoothed = state.facial_smoother.update(_cue_for_temporal(facial_raw))
+        speech_smoothed = state.speech_smoother.update(_cue_for_temporal(speech_raw))
 
-    gaze_affect = state.cue_mapper.map(gaze_smoothed)
-    posture_affect = state.cue_mapper.map(posture_smoothed)
+        gaze_affect = state.cue_mapper.map(gaze_smoothed)
+        posture_affect = state.cue_mapper.map(posture_smoothed)
+        facial_affect = state.cue_mapper.map(facial_smoothed)
+        speech_affect = state.cue_mapper.map(speech_smoothed)
 
-    fusion_output = state.fusion_engine.fuse(
-        cues={"gaze": gaze_affect, "posture": posture_affect},
-        timestamp_sec=ts,
-    )
+        fusion_output = state.fusion_engine.fuse(
+            cues={
+                "gaze": gaze_affect,
+                "posture": posture_affect,
+                "facial": facial_affect,
+                "speech": speech_affect,
+            },
+            timestamp_sec=ts,
+        )
 
-    state.packager.add_fusion_result(fusion_output)
-    window_payload = state.packager.build_window_payload(fusion_output)
+        state.packager.add_fusion_result(fusion_output)
+        window_payload = state.packager.build_window_payload(fusion_output)
 
-    validated = WindowPayload(**window_payload)
-    _storage.save_window(validated.dict())
+        validated = WindowPayload(**window_payload)
+        if hasattr(validated, "model_dump"):
+            _storage.save_window(validated.model_dump(mode="json"))
+        else:
+            _storage.save_window(validated.dict())
 
-    summary = state.packager.build_summary_payload()
-    dominant_emotion = summary.get("dominant_emotion") if summary else None
-    emotion_distribution = summary.get("emotion_distribution") if summary else None
+        summary = state.packager.build_summary_payload()
+        dominant_emotion = summary.get("dominant_emotion") if summary else None
+        emotion_distribution = summary.get("emotion_distribution") if summary else None
 
-    logger.info(
-        "Live frame window saved: student=%s session=%s t=%s emotion=%s",
-        req.student_id,
-        req.session_id,
-        ts,
-        fusion_output.get("final_emotion"),
-    )
+        logger.info(
+            "Live frame window saved: student=%s session=%s t=%s emotion=%s",
+            req.student_id,
+            req.session_id,
+            ts,
+            fusion_output.get("final_emotion"),
+        )
 
-    return {
-        "status": "success",
-        "timestamp_sec": ts,
-        "fusion": fusion_output,
-        "dominant_emotion": dominant_emotion,
-        "emotion_distribution": emotion_distribution,
-        "total_windows": summary.get("total_windows") if summary else 0,
-    }
+        return jsonable_encoder(
+            {
+                "status": "success",
+                "timestamp_sec": ts,
+                "fusion": fusion_output,
+                "dominant_emotion": dominant_emotion,
+                "emotion_distribution": emotion_distribution,
+                "total_windows": summary.get("total_windows") if summary else 0,
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("live_frame failed")
+        raise HTTPException(
+            status_code=500,
+            detail=f"live_frame failed: {e!s}",
+        ) from e
 
 
 @router.post("/live-session-end")

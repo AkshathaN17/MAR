@@ -72,7 +72,7 @@ def _init_models() -> Dict[str, Any]:
     )
 
     speech_model = SpeechInference(
-        model_path="models/speech_wav2vec/speech_wav2vec.pt",
+        model_path="models/speech_wav2vec.pt",
         device="cpu",
     )
 

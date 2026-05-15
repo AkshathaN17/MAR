@@ -44,7 +44,7 @@ class TemporalSmoother:
         # Ignore low-quality frames
         if (
             cue_output["confidence"] < self.confidence_threshold
-            or cue_output["quality"] != "good"
+            or cue_output.get("quality", "unknown") != "good"
         ):
             return cue_output
 
